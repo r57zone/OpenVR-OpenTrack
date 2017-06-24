@@ -1,5 +1,5 @@
-# OpenVR OpenTrack (En)
+# (En) OpenVR OpenTrack
 OpenVR driver with OpenTrack support (UDP over network). 
 
-# OpenVR OpenTrack (Ru)
+# (Ru) OpenVR OpenTrack
 OpenVR драйвер, с поддержкой OpenTrack (UDP over network).
