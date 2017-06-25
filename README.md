@@ -17,7 +17,7 @@ Input lag of head tracking (need self thread for [read WinSock](https://github.c
 **[Download](https://github.com/r57zone/OpenVR-OpenTrack)**<br>
 
 ## Feedback
-`r57zone[at]gmail.com`
+`r57zone[at]gmail.com`<br>
 
 # (Ru) OpenVR OpenTrack
 Драйвер для OpenVR / SteamVR, позволяющий вращать головой, с помощью любого [OpenTrack](https://github.com/opentrack/opentrack) трекера, для самодельного VR шлема из Android смартфона или [HDMI дисплея](http://ali.pub/1llt51) и трекера.<br>
