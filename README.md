@@ -26,12 +26,12 @@ Input lag of head tracking (need self thread for [read WinSock](https://github.c
 ## Настройка 
 1. Переместить и заменить папку "null", из архива, в папку "...\Steam\steamapps\common\SteamVR\drivers\null".
 2. Переместить и заменить файл "steamvr.vrsettings", из архива, в папке "...\Steam\config".
-3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack).<br><br><br>
+3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack).<br><br>
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки, с экрана монитора, можно использовать приложение Moonlight (только для Nvidia 600 серии и выше) или любое другое приложение.<br><br>
 Если вы используете самодельный VR шлем, который работает как второй монитор, то после запуска SteamVR нажмите клавиши "Shift" + "Win" + "Вправо" для переноса приложения на второй монитор.<br>
 
 ## Проблемы
-Тормозит отслеживание (нужен отдельный самостоятельный поток для [чтения WinSock](https://github.com/r57zone/OpenVR-OpenTrack/blob/master/OpenVR/samples/driver_sample/driver_sample.cpp#L418-L428)).<br>
+Тормозит отслеживание (нужен отдельный поток для [чтения WinSock](https://github.com/r57zone/OpenVR-OpenTrack/blob/master/OpenVR/samples/driver_sample/driver_sample.cpp#L418-L428)).<br>
 
 ## Загрузка
 >Версия для x86 и x64.<br>
