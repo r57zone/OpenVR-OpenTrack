@@ -4,10 +4,14 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 <br>![](https://user-images.githubusercontent.com/9499881/27535649-d8822f38-5a7c-11e7-8681-4e42ded2eb1c.gif)<br>
 [(YouTube)](https://youtu.be/r-xJ0oMcltY)<br>
 
+## Problems
+1. Lock to 30 FPS (Debug mode?).
+2. Drawing eye projections slows down in some applications.
+
 ## Setup
 1. Move with replace the "null" folder, from the archive, to the folder "...\Steam\steamapps\common\SteamVR\drivers".
 2. Move with replace the file "steamvr.vrsettings", from the archive, in the folder "...\Steam\config".
-3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hotkey to centring, setup sensitive or etc).<br><br>
+3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (disable filter, add hotkey to centring, setup sensitive or etc).<br><br>
 If you are using an Android smartphone, need to use FreePie IMU from the OpenTrack archive for head tracking, and you can use the Moonlight application (for Nvidia 600 series only and above) or any other application to stream the picture from the monitor screen.<br><br>
 If you use a DIY VR headset that works as a second monitor, then after launching SteamVR, press the "Shift" + "Win" + "Right" keys to move the application to the second monitor.<br>
 
@@ -21,6 +25,10 @@ If you use a DIY VR headset that works as a second monitor, then after launching
 # (Ru) OpenVR OpenTrack
 Драйвер для OpenVR / SteamVR, позволяющий вращать головой, с помощью любого [OpenTrack](https://github.com/opentrack/opentrack) трекера, для самодельного VR шлема из Android смартфона или [HDMI дисплея](http://ali.pub/1llt51) и трекера.<br>
 <br>OpenTrack поддерживает следующие трекеры: FreePie UDP receiver (FreePie IMU для Android), Hatire Arduino ([Arduino](http://ali.pub/1lltzk) + [GY-85](http://ali.pub/1lltk0)), [Oculus DK1](http://ali.pub/1llqtf), Aruco (Paper + WebCam) и другие.<br>
+
+# Проблемы
+1. 30 FPS (из-за Debug mode?).
+2. Отрисовка проекций глаз тормозит в некоторых приложениях.
 
 ## Настройка 
 1. Переместить, с заменой, папку "null", из архива, в папку "...\Steam\steamapps\common\SteamVR\drivers".
