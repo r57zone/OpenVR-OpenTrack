@@ -9,9 +9,6 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 If you are using an Android smartphone, need to use FreePie IMU from the OpenTrack archive for head tracking, and you can use the Moonlight application (for Nvidia 600 series only and above) or any other application to stream the picture from the monitor screen.<br><br>
 If you use a DIY VR headset that works as a second monitor, then after launching SteamVR, press the "Shift" + "Win" + "Right" keys to move the application to the second monitor.<br>
 
-## Problems
-Input lag of head tracking (need self thread for [read WinSock](https://github.com/r57zone/OpenVR-OpenTrack/blob/master/OpenVR/samples/driver_sample/driver_sample.cpp#L418-L428)).<br>
-
 ## Download
 >Version for x86 и x64.<br>
 **[Download](https://github.com/r57zone/OpenVR-OpenTrack)**<br>
@@ -29,9 +26,6 @@ Input lag of head tracking (need self thread for [read WinSock](https://github.c
 3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack).<br><br>
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки, с экрана монитора, можно использовать приложение Moonlight (только для Nvidia 600 серии и выше) или любое другое приложение.<br><br>
 Если вы используете самодельный VR шлем, который работает как второй монитор, то после запуска SteamVR нажмите клавиши "Shift" + "Win" + "Вправо" для переноса приложения на второй монитор.<br>
-
-## Проблемы
-Тормозит отслеживание (нужен отдельный поток для [чтения WinSock](https://github.com/r57zone/OpenVR-OpenTrack/blob/master/OpenVR/samples/driver_sample/driver_sample.cpp#L418-L428)).<br>
 
 ## Загрузка
 >Версия для x86 и x64.<br>
