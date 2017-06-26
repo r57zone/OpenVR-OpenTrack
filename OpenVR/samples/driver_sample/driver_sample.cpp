@@ -81,6 +81,7 @@ int bytes_read;
 struct sockaddr_in from;
 int fromlen;
 bool SocketActivated = false;
+bool bKeepReading = false;
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -220,6 +221,10 @@ public:
 			local.sin_addr.s_addr = INADDR_ANY;
 
 			socketS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+			u_long nonblocking_enabled = TRUE;
+			ioctlsocket(socketS, FIONBIO, &nonblocking_enabled);
+
 			if (socketS != INVALID_SOCKET) {
 
 				iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
@@ -402,7 +407,7 @@ public:
 	}
 
 	double DegToRad(double f){
-		return f * (3.14 / 180);
+		return f * (3.14159265358979323846 / 180);
 	}
 
 	virtual DriverPose_t GetPose()
@@ -417,13 +422,25 @@ public:
 
 		//Read UDP socket with OpenTrack data
 		if (SocketActivated == true) {
+			bKeepReading = true;
+			while (bKeepReading) {
 				memset(&OpenTrackPacket, 0, sizeof(OpenTrackPacket));
-				bytes_read = recvfrom(socketS, (char*)(&OpenTrackPacket), sizeof(OpenTrackPacket), 0, (sockaddr*)&from, &fromlen);
+				bytes_read = recvfrom(
+					socketS,
+					(char*)(&OpenTrackPacket),
+					sizeof(OpenTrackPacket),
+					0,
+					(sockaddr*)&from,
+					&fromlen);
 
 				if (bytes_read > 0) {
 					Yaw = DegToRad(OpenTrackPacket.yaw);
 					Pitch = DegToRad(OpenTrackPacket.pitch);
 					Roll = DegToRad(OpenTrackPacket.roll);
+				}
+				else {
+					bKeepReading = false;
+				}
 			}
 		}
 
