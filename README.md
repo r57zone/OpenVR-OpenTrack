@@ -5,8 +5,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 [(YouTube)](https://youtu.be/r-xJ0oMcltY)<br>
 
 ## Problems
-1. Lock to 30 FPS (Debug mode?).
-2. Drawing eye projections slows down in some applications.
+1. Lock to 30 FPS in the version with Windowed mode, which is needed to work on the second monitor.
 
 ## Setup
 1. Move with replace the "null" folder, from the archive, to the folder "...\Steam\steamapps\common\SteamVR\drivers".
@@ -27,8 +26,7 @@ If you use a DIY VR headset that works as a second monitor, then after launching
 <br>OpenTrack поддерживает следующие трекеры: FreePie UDP receiver (FreePie IMU для Android), Hatire Arduino ([Arduino](http://ali.pub/1lltzk) + [GY-85](http://ali.pub/1lltk0)), [Oculus DK1](http://ali.pub/1llqtf), Aruco (Paper + WebCam) и другие.<br>
 
 # Проблемы
-1. 30 FPS (из-за Debug mode?).
-2. Отрисовка проекций глаз тормозит в некоторых приложениях.
+1. 30 FPS в версии с Windowed режимом, которая нужна для работы на втором мониторе.
 
 ## Настройка 
 1. Переместить, с заменой, папку "null", из архива, в папку "...\Steam\steamapps\common\SteamVR\drivers".
