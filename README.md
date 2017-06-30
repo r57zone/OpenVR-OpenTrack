@@ -10,7 +10,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 ## Setup
 1. Move with replace the "null" folder, from the archive, to the folder "...\Steam\steamapps\common\SteamVR\drivers".
 2. Move with replace the file "steamvr.vrsettings", from the archive, in the folder "...\Steam\config".
-3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (disable filter, add hotkey to centring, setup sensitive or etc).<br><br>
+3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (disable filter, add hotkey to centring, setup sensitive, change output to "UDP over network").<br><br>
 If you are using an Android smartphone, need to use FreePie IMU from the OpenTrack archive for head tracking, and you can use the Moonlight application (for Nvidia 600 series only and above) or any other application to stream the picture from the monitor screen.<br><br>
 If you use a DIY VR headset that works as a second monitor, then after launching SteamVR, press the "Shift" + "Win" + "Right" keys to move the application to the second monitor.<br>
 
@@ -31,7 +31,7 @@ If you use a DIY VR headset that works as a second monitor, then after launching
 ## Настройка 
 1. Переместить, с заменой, папку "null", из архива, в папку "...\Steam\steamapps\common\SteamVR\drivers".
 2. Переместить, с заменой, файл "steamvr.vrsettings", из архива, в папку "...\Steam\config".
-3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу для сброса центровки, настроить чувствительность и так далее).<br><br>
+3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу для сброса центровки, настроить чувствительность, изменить выходной интерфейс на "UDP over network").<br><br>
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки, с экрана монитора, можно использовать приложение Moonlight (только для Nvidia 600 серии и выше) или любое другое приложение.<br><br>
 Если вы используете самодельный VR шлем, который работает как второй монитор, то после запуска SteamVR нажмите клавиши "Shift" + "Win" + "Вправо" для переноса приложения на второй монитор.<br>
 
