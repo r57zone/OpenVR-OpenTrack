@@ -13,7 +13,7 @@ If you use a VR headset that works as a second monitor, then use the [MultiMonit
 
 ## Download
 >Version for x86 и x64.<br>
-**[Download](https://github.com/r57zone/OpenVR-OpenTrack)**<br>
+**[Download](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
 
 ## Feedback
 `r57zone[at]gmail.com`<br>
@@ -31,7 +31,7 @@ If you use a VR headset that works as a second monitor, then use the [MultiMonit
 
 ## Загрузка
 >Версия для x86 и x64.<br>
-**[Загрузить](https://github.com/r57zone/OpenVR-OpenTrack)**<br>
+**[Загрузить](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
 
 ## Обратная связь
 `r57zone[собака]gmail.com`
