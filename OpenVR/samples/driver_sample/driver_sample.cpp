@@ -361,7 +361,8 @@ public:
 
 	virtual bool IsDisplayRealDisplay() 
 	{
-		return false;
+		return true;
+		//return false;
 	}
 
 	virtual void GetRecommendedRenderTargetSize( uint32_t *pnWidth, uint32_t *pnHeight ) 
