@@ -6,7 +6,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 
 ## Setup
 1. Move with replace the "null" folder, from the archive, to the folder "...\Steam\steamapps\common\SteamVR\drivers".
-2. Move with replace the file "steamvr.vrsettings", from the archive, in the folder "...\Steam\config". Change the "windowWidth", "windowHeight", "renderWidth", "renderHeight" parameters to your monitor resolution.
+2. Move with replace the file "steamvr.vrsettings", from the archive, in the folder "...\Steam\config". Change the "windowWidth", "windowHeight" parameters to your monitor resolution and "renderWidth", "renderHeight" to render resolution. For example, the resolution of the monitor can be 2560 at 1440, and the resolution of the renderer 1920 at 1080..
 3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (disable filter, add hotkey to centring, setup sensitive, change output to "UDP over network" and set IP to "127.0.0.1" on output plugin settings).<br><br>
 If you are using an Android smartphone, need to use FreePie IMU from the OpenTrack archive for head tracking, and you can use the Moonlight application (for Nvidia 600 series only and above) or any other application to stream the picture from the monitor screen.<br><br>
 If you use a VR helmet that works as a second monitor, change the "windowX" parameter in the "steamvr.vrsettings" file, for example, to 1920 (the resolution width of the first monitor). Also change the resolution of the second monitor to the resolution supported by SteamVR, for example, 1920 at 1080.<br>
@@ -24,10 +24,10 @@ If you use a VR helmet that works as a second monitor, change the "windowX" para
 
 ## Настройка 
 1. Переместить, с заменой, папку "null", из архива, в папку "...\Steam\steamapps\common\SteamVR\drivers".
-2. Переместить, с заменой, файл "steamvr.vrsettings", из архива, в папку "...\Steam\config". Измените параметры "windowWidth", "windowHeight", "renderWidth", "renderHeight" на разрешение вашего монитора. 
+2. Переместить, с заменой, файл "steamvr.vrsettings", из архива, в папку "...\Steam\config". Измените параметры "windowWidth", "windowHeight" на разрешение вашего монитора и "renderWidth", "renderHeight" на разрешение рендера. Например, разрешение монитора может быть 2560 на 1440, а разрешение рендера 1920 на 1080. 
 3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу для сброса центровки, настроить чувствительность, изменить выходной интерфейс на "UDP over network" и задать IP "127.0.0.1" в настройках выходного интерфейса).<br><br>
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки, с экрана монитора, можно использовать приложение Moonlight (только для Nvidia 600 серии и выше) или любое другое приложение.<br><br>
-Если вы используете VR шлем, который работает как второй монитор, то измените параметр "windowX" в файле "steamvr.vrsettings", например, на 1920 (ширина разрешения первого монитора). Также измените разрешение второго монитора на разрешение поддерживаемое SteamVR, например, 1920 на 1080.<br>
+Если вы используете VR шлем, который работает как второй монитор, то измените параметр "windowX" в файле "steamvr.vrsettings", например, на 1920 (ширина разрешения первого монитора). Также измените разрешение рендера, на разрешение поддерживаемое SteamVR, например, 1920 на 1080.<br>
 
 ## Загрузка
 >Версия для x86 и x64.<br>
