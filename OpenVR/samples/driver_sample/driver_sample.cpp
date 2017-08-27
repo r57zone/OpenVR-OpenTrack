@@ -65,6 +65,7 @@ static const char * const k_pch_Sample_DisplayFrequency_Float = "displayFrequenc
 
 //OpenTrack vars
 double t0, t1, t2, t3, t4, t5;
+double qW, qX, qY, qZ;
 double Yaw = 0, Pitch = 0, Roll = 0;
 struct TOpenTrackPacket {
 	double x;
@@ -83,9 +84,49 @@ int fromlen;
 bool SocketActivated = false;
 bool bKeepReading = false;
 
+std::thread *pSocketThread = NULL;
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+
+double DegToRad(double f) {
+	return f * (3.14159265358979323846 / 180);
+}
+
+void WinSockReadFunc()
+{
+	while (SocketActivated) {
+		//Read UDP socket with OpenTrack data
+		bKeepReading = true;
+		while (bKeepReading) {
+			memset(&OpenTrackPacket, 0, sizeof(OpenTrackPacket));
+			bytes_read = recvfrom(socketS, (char*)(&OpenTrackPacket), sizeof(OpenTrackPacket), 0, (sockaddr*)&from, &fromlen);
+
+			if (bytes_read > 0) {
+				Yaw = DegToRad(OpenTrackPacket.yaw);
+				Pitch = DegToRad(OpenTrackPacket.pitch);
+				Roll = DegToRad(OpenTrackPacket.roll);
+
+				//Convert yaw, pitch, roll to quaternion
+				t0 = cos(Yaw * 0.5);
+				t1 = sin(Yaw * 0.5);
+				t2 = cos(Roll * 0.5);
+				t3 = sin(Roll * 0.5);
+				t4 = cos(Pitch * 0.5);
+				t5 = sin(Pitch * 0.5);
+
+				qW = t0 * t2 * t4 + t1 * t3 * t5;
+				qX = t0 * t3 * t4 - t1 * t2 * t5;
+				qY = t0 * t2 * t5 + t1 * t3 * t4;
+				qZ = t1 * t2 * t4 - t0 * t3 * t5;
+			}
+			else {
+					bKeepReading = false;
+			}
+		}
+	}
+}
 
 class CWatchdogDriver_Sample : public IVRWatchdogProvider
 {
@@ -164,12 +205,16 @@ void CWatchdogDriver_Sample::Cleanup()
 	//Close UDP for OpenTrack
 	if (SocketActivated == true) {
 		SocketActivated=false;
+		if (pSocketThread) {
+			pSocketThread->join();
+			delete pSocketThread;
+			pSocketThread = nullptr;
+		}
 		closesocket(socketS);
 		WSACleanup();
 	}
 	//CleanupDriverLog();
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -229,7 +274,10 @@ public:
 
 				iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
 
-				if (iResult != SOCKET_ERROR) { SocketActivated = true; } else {
+				if (iResult != SOCKET_ERROR) {
+					SocketActivated = true; 
+					pSocketThread = new std::thread(WinSockReadFunc);
+				} else {
 					WSACleanup();
 					SocketActivated = false;
 				}
@@ -407,10 +455,6 @@ public:
 		return coordinates;
 	}
 
-	double DegToRad(double f){
-		return f * (3.14159265358979323846 / 180);
-	}
-
 	virtual DriverPose_t GetPose()
 	{
 		DriverPose_t pose = { 0 };
@@ -421,43 +465,11 @@ public:
 		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
 		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
 
-		//Read UDP socket with OpenTrack data
-		if (SocketActivated == true) {
-			bKeepReading = true;
-			while (bKeepReading) {
-				memset(&OpenTrackPacket, 0, sizeof(OpenTrackPacket));
-				bytes_read = recvfrom(
-					socketS,
-					(char*)(&OpenTrackPacket),
-					sizeof(OpenTrackPacket),
-					0,
-					(sockaddr*)&from,
-					&fromlen);
-
-				if (bytes_read > 0) {
-					Yaw = DegToRad(OpenTrackPacket.yaw);
-					Pitch = DegToRad(OpenTrackPacket.pitch);
-					Roll = DegToRad(OpenTrackPacket.roll);
-				}
-				else {
-					bKeepReading = false;
-				}
-			}
-		}
-
-		//Convert yaw, pitch, roll to quaternion
-		t0 = cos(Yaw * 0.5);
-		t1 = sin(Yaw * 0.5);
-		t2 = cos(Roll * 0.5);
-		t3 = sin(Roll * 0.5);
-		t4 = cos(Pitch * 0.5);
-		t5 = sin(Pitch * 0.5);
-
 		//Set head tracking rotation
-		pose.qRotation.w = t0 * t2 * t4 + t1 * t3 * t5;
-		pose.qRotation.x = t0 * t3 * t4 - t1 * t2 * t5;
-		pose.qRotation.y = t0 * t2 * t5 + t1 * t3 * t4;
-		pose.qRotation.z = t1 * t2 * t4 - t0 * t3 * t5;
+		pose.qRotation.w = qW;
+		pose.qRotation.x = qX;
+		pose.qRotation.y = qY;
+		pose.qRotation.z = qZ;
 
 		return pose;
 	}
@@ -542,6 +554,11 @@ void CServerDriver_Sample::Cleanup()
 	//Close UDP for OpenTrack
 	if (SocketActivated == true) {
 		SocketActivated = false;
+		if (pSocketThread) {
+			pSocketThread->join();
+			delete pSocketThread;
+			pSocketThread = nullptr;
+		}
 		closesocket(socketS);
 		WSACleanup();
 	}
