@@ -8,7 +8,7 @@
 #include <chrono>
 #include <stdio.h>
 #include <winsock2.h>
-#pragma comment (lib,"WSock32.Lib")
+#pragma comment (lib, "WSock32.Lib")
 
 using namespace vr;
 
@@ -67,6 +67,7 @@ static const char * const k_pch_Sample_DisplayFrequency_Float = "displayFrequenc
 double t0, t1, t2, t3, t4, t5;
 double qW, qX, qY, qZ;
 double Yaw = 0, Pitch = 0, Roll = 0;
+double pX = 0, pY = 0, pZ = 0;
 struct TOpenTrackPacket {
 	double x;
 	double y;
@@ -107,6 +108,9 @@ void WinSockReadFunc()
 				Yaw = DegToRad(OpenTrackPacket.yaw);
 				Pitch = DegToRad(OpenTrackPacket.pitch);
 				Roll = DegToRad(OpenTrackPacket.roll);
+				pX = OpenTrackPacket.x;
+				pY = OpenTrackPacket.y;
+				pZ = OpenTrackPacket.z;
 
 				//Convert yaw, pitch, roll to quaternion
 				t0 = cos(Yaw * 0.5);
@@ -204,7 +208,7 @@ void CWatchdogDriver_Sample::Cleanup()
 
 	//Close UDP for OpenTrack
 	if (SocketActivated == true) {
-		SocketActivated=false;
+		SocketActivated = false;
 		if (pSocketThread) {
 			pSocketThread->join();
 			delete pSocketThread;
@@ -470,6 +474,11 @@ public:
 		pose.qRotation.x = qX;
 		pose.qRotation.y = qY;
 		pose.qRotation.z = qZ;
+
+		//Set position tracking
+		pose.vecPosition[0] = pX * 0.01;
+		pose.vecPosition[1] = pY * 0.01;
+		pose.vecPosition[2] = pZ * 0.01;
 
 		return pose;
 	}
