@@ -9,7 +9,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 2. Move with replace the file "steamvr.vrsettings", from the archive, in the folder "...\Steam\config". Change the "windowWidth", "windowHeight" parameters to your monitor resolution and "renderWidth", "renderHeight" to render resolution. For example, the resolution of the monitor can be 2560 at 1440, and the resolution of the renderer 1920 at 1080..
 3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (disable filter, add hotkey to centring, setup sensitive, change output to "UDP over network" and set IP to "127.0.0.1" on output plugin settings).<br><br>
 If you are using an Android smartphone, need to use FreePie IMU from the OpenTrack archive for head tracking, and you can use the Moonlight application (for Nvidia 600 series only and above) or any other application to stream the picture from the monitor screen.<br><br>
-If you use a VR helmet that works as a second monitor, change the "windowX" parameter in the "steamvr.vrsettings" file, for example, to 1920 (the resolution width of the first monitor). Also change the resolution of the second monitor to the resolution supported by SteamVR, for example, 1920 at 1080.<br>
+If you use a VR headset that works as a second monitor, change the "windowX" parameter in the "steamvr.vrsettings" file, for example, to 1920 (the resolution width of the first monitor). Also change the resolution of the second monitor to the resolution supported by SteamVR, for example, 1920 at 1080.<br>
 If you use Arduino Razor IMU tracker, then instead of OpenTrack you can use the application [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
 
 ## Download
