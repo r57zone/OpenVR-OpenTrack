@@ -6,9 +6,14 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+
 #include <stdio.h>
 #include <winsock2.h>
 #pragma comment (lib, "WSock32.Lib")
+
+#if defined( _WINDOWS )
+#include <windows.h>
+#endif
 
 using namespace vr;
 
@@ -64,19 +69,18 @@ static const char * const k_pch_Sample_SecondsFromVsyncToPhotons_Float = "second
 static const char * const k_pch_Sample_DisplayFrequency_Float = "displayFrequency";
 
 //OpenTrack vars
-double t0, t1, t2, t3, t4, t5;
 double qW, qX, qY, qZ;
 double Yaw = 0, Pitch = 0, Roll = 0;
 double pX = 0, pY = 0, pZ = 0;
-struct TOpenTrackPacket {
-	double x;
-	double y;
-	double z;
-	double yaw;
-	double pitch;
-	double roll;
+struct TOpenTrack {
+	double X;
+	double Y;
+	double Z;
+	double Yaw;
+	double Pitch;
+	double Roll;
 };
-TOpenTrackPacket OpenTrackPacket;
+TOpenTrack OpenTrack;
 //WinSock
 SOCKET socketS;
 int bytes_read;
@@ -101,32 +105,25 @@ void WinSockReadFunc()
 		//Read UDP socket with OpenTrack data
 		bKeepReading = true;
 		while (bKeepReading) {
-			memset(&OpenTrackPacket, 0, sizeof(OpenTrackPacket));
-			bytes_read = recvfrom(socketS, (char*)(&OpenTrackPacket), sizeof(OpenTrackPacket), 0, (sockaddr*)&from, &fromlen);
+			memset(&OpenTrack, 0, sizeof(OpenTrack));
+			bytes_read = recvfrom(socketS, (char*)(&OpenTrack), sizeof(OpenTrack), 0, (sockaddr*)&from, &fromlen);
 
 			if (bytes_read > 0) {
-				Yaw = DegToRad(OpenTrackPacket.yaw);
-				Pitch = DegToRad(OpenTrackPacket.pitch);
-				Roll = DegToRad(OpenTrackPacket.roll);
-				pX = OpenTrackPacket.x;
-				pY = OpenTrackPacket.y;
-				pZ = OpenTrackPacket.z;
+				Yaw = DegToRad(OpenTrack.Yaw);
+				Pitch = DegToRad(OpenTrack.Pitch);
+				Roll = DegToRad(OpenTrack.Roll);
+				pX = OpenTrack.X;
+				pY = OpenTrack.Y;
+				pZ = OpenTrack.Z;
 
 				//Convert yaw, pitch, roll to quaternion
-				t0 = cos(Yaw * 0.5);
-				t1 = sin(Yaw * 0.5);
-				t2 = cos(Roll * 0.5);
-				t3 = sin(Roll * 0.5);
-				t4 = cos(Pitch * 0.5);
-				t5 = sin(Pitch * 0.5);
-
-				qW = t0 * t2 * t4 + t1 * t3 * t5;
-				qX = t0 * t3 * t4 - t1 * t2 * t5;
-				qY = t0 * t2 * t5 + t1 * t3 * t4;
-				qZ = t1 * t2 * t4 - t0 * t3 * t5;
+				qW = cos(Yaw * 0.5) * cos(Roll * 0.5) * cos(Pitch * 0.5) + sin(Yaw * 0.5) * sin(Roll * 0.5) * sin(Pitch * 0.5);
+				qX = cos(Yaw * 0.5) * sin(Roll * 0.5) * cos(Pitch * 0.5) - sin(Yaw * 0.5) * cos(Roll * 0.5) * sin(Pitch * 0.5);
+				qY = cos(Yaw * 0.5) * cos(Roll * 0.5) * sin(Pitch * 0.5) + sin(Yaw * 0.5) * sin(Roll * 0.5) * cos(Pitch * 0.5);
+				qZ = sin(Yaw * 0.5) * cos(Roll * 0.5) * cos(Pitch * 0.5) - cos(Yaw * 0.5) * sin(Roll * 0.5) * sin(Pitch * 0.5);
 			}
 			else {
-					bKeepReading = false;
+				bKeepReading = false;
 			}
 		}
 	}
@@ -157,15 +154,12 @@ void WatchdogThreadFunction(  )
 	while ( !g_bExiting )
 	{
 #if defined( _WINDOWS )
-
 		// on windows send the event when the Y key is pressed.
-		//if ( (0x01 & GetAsyncKeyState( 'Y' )) != 0 )
-		//{
+		/*if ( (0x01 & GetAsyncKeyState( 'Y' )) != 0 )
+		{
 			// Y key was pressed. 
-			//vr::VRWatchdogHost()->WatchdogWakeUp();
-
-		//}
-		
+			vr::VRWatchdogHost()->WatchdogWakeUp();
+		}*/
 		std::this_thread::sleep_for( std::chrono::microseconds( 500 ) );
 #else
 		// for the other platforms, just send one every five seconds
@@ -187,10 +181,9 @@ EVRInitError CWatchdogDriver_Sample::Init( vr::IVRDriverContext *pDriverContext 
 	m_pWatchdogThread = new std::thread( WatchdogThreadFunction );
 	if ( !m_pWatchdogThread )
 	{
-	//	DriverLog( "Unable to create watchdog thread\n");
+		//DriverLog( "Unable to create watchdog thread\n");
 		return VRInitError_Driver_Failed;
 	}
-
 
 	return VRInitError_None;
 }
@@ -198,16 +191,8 @@ EVRInitError CWatchdogDriver_Sample::Init( vr::IVRDriverContext *pDriverContext 
 
 void CWatchdogDriver_Sample::Cleanup()
 {
-	g_bExiting = true;
-	if ( m_pWatchdogThread )
-	{
-		m_pWatchdogThread->join();
-		delete m_pWatchdogThread;
-		m_pWatchdogThread = nullptr;
-	}
-
-	//Close UDP for OpenTrack
-	if (SocketActivated == true) {
+	//Close UDP
+	if (SocketActivated) {
 		SocketActivated = false;
 		if (pSocketThread) {
 			pSocketThread->join();
@@ -217,8 +202,16 @@ void CWatchdogDriver_Sample::Cleanup()
 		closesocket(socketS);
 		WSACleanup();
 	}
+	g_bExiting = true;
+	if ( m_pWatchdogThread )
+	{
+		m_pWatchdogThread->join();
+		delete m_pWatchdogThread;
+		m_pWatchdogThread = nullptr;
+	}
 	//CleanupDriverLog();
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -258,7 +251,7 @@ public:
 		//DriverLog( "driver_null: Display Frequency: %f\n", m_flDisplayFrequency );
 		//DriverLog( "driver_null: IPD: %f\n", m_flIPD );
 
-		//UDP server for OpenTrack "UDP over network"
+		//Open UDP port for receive data from OpenTrack ("UDP over network", 127.0.0.1, 4242)
 		WSADATA wsaData;
 		int iResult;
 		iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -279,20 +272,22 @@ public:
 				iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
 
 				if (iResult != SOCKET_ERROR) {
-					SocketActivated = true; 
+					SocketActivated = true;
 					pSocketThread = new std::thread(WinSockReadFunc);
-				} else {
+				}
+				else {
 					WSACleanup();
 					SocketActivated = false;
 				}
-			
-			} else { 
+
+			}
+			else {
 				WSACleanup();
 				SocketActivated = false;
 			}
 
 		}
-		else 
+		else
 		{
 			WSACleanup();
 			SocketActivated = false;
@@ -323,7 +318,7 @@ public:
 		// avoid "not fullscreen" warnings from vrmonitor
 		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_IsOnDesktop_Bool, false );
 
-		//Debug mode activate Windowed Mode (borderless fullscreen) on "Headset Window" and you can move window to second screen with buttons (Shift + Win + Right or Left) 
+		//Debug mode activate Windowed Mode (borderless fullscreen) on "Headset Window" and you can move window to second screen with buttons (Shift + Win + Right or Left), but lock to 30 FPS 
 		//vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, true);
 
 		// Icons can be configured in code or automatically configured by an external file "drivername\resources\driver.vrresources".
@@ -413,7 +408,7 @@ public:
 
 	virtual bool IsDisplayRealDisplay() 
 	{
-		return true;
+		return true; //Support working on extended display
 		//return false;
 	}
 
@@ -459,16 +454,25 @@ public:
 		return coordinates;
 	}
 
-	virtual DriverPose_t GetPose()
+	virtual DriverPose_t GetPose() 
 	{
 		DriverPose_t pose = { 0 };
-		pose.poseIsValid = true;
-		pose.result = TrackingResult_Running_OK;
-		pose.deviceIsConnected = true;
 
-		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
-		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
+		if (SocketActivated) {
+			pose.poseIsValid = true;
+			pose.result = TrackingResult_Running_OK;
+			pose.deviceIsConnected = true;
+		}
+		else
+		{
+			pose.poseIsValid = false;
+			pose.result = TrackingResult_Uninitialized;
+			pose.deviceIsConnected = false;
+		}
 
+		pose.qWorldFromDriverRotation = HmdQuaternion_Init( 1, 0, 0, 0 );
+		pose.qDriverFromHeadRotation = HmdQuaternion_Init( 1, 0, 0, 0 );
+		
 		//Set head tracking rotation
 		pose.qRotation.w = qW;
 		pose.qRotation.x = qX;
@@ -556,12 +560,8 @@ EVRInitError CServerDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
 
 void CServerDriver_Sample::Cleanup() 
 {
-	//CleanupDriverLog();
-	delete m_pNullHmdLatest;
-	m_pNullHmdLatest = NULL;
-
-	//Close UDP for OpenTrack
-	if (SocketActivated == true) {
+	//Close UDP
+	if (SocketActivated) {
 		SocketActivated = false;
 		if (pSocketThread) {
 			pSocketThread->join();
@@ -571,6 +571,9 @@ void CServerDriver_Sample::Cleanup()
 		closesocket(socketS);
 		WSACleanup();
 	}
+	//CleanupDriverLog();
+	delete m_pNullHmdLatest;
+	m_pNullHmdLatest = NULL;
 }
 
 
