@@ -264,7 +264,7 @@ public:
 
 			socketS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-			u_long nonblocking_enabled = TRUE;
+			u_long nonblocking_enabled = true;
 			ioctlsocket(socketS, FIONBIO, &nonblocking_enabled);
 
 			if (socketS != INVALID_SOCKET) {

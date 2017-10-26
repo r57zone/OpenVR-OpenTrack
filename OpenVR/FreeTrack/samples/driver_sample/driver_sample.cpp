@@ -6,8 +6,8 @@
 #include <vector>
 #include <thread>
 #include <chrono>
-#include <Windows.h>
-#include "Shlwapi.h"
+//#include <Windows.h>
+//#include "Shlwapi.h"
 #include <atlbase.h>
 
 using namespace vr;
@@ -218,7 +218,7 @@ public:
 		CRegKey key;
 		TCHAR libPath[MAX_PATH];
 
-		LONG status = key.Open(HKEY_CURRENT_USER, _T("Software\\OpenTrack"));
+		LONG status = key.Open(HKEY_CURRENT_USER, _T("Software\\OpenVR-OpenTrack"));
 		if (status == ERROR_SUCCESS)
 		{
 			ULONG libPathSize = sizeof(libPath);
