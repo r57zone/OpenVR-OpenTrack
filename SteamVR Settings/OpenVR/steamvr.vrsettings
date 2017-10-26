@@ -5,20 +5,25 @@
    "driver_null" : {
       "enable" : true,
       "id" : "Null Driver",
-	  "secondsFromVsyncToPhotons" : 0.10000000149011612,
+      "secondsFromVsyncToPhotons" : 0.10000000149011612,
       "serialNumber" : "Null 4711",
       "renderWidth" : <RENDERWIDTH>,
 	  "renderHeight" : <RENDERHEIGHT>,
 	  "windowWidth" : <WINDOWWIDTH>,
       "windowHeight" : <WINDOWHEIGHT>,
       "windowX" : <WINDOWX>,
-      "windowY" : <WINDOWY>
+      "windowY" : <WINDOWY>,
+	  "DistortionK1" : 0.91,
+	  "DistortionK2" : 0.93,
+	  "ZoomWidth" : 0.8,
+	  "ZoomHeight" : 0.8
    },
    "steamvr" : {
       "activateMultipleDrivers" : true,
       "directMode" : false,
       "enableHomeApp" : false,
       "forcedDriver" : "null",
+      "mirrorViewGeometry" : "0 0 960 540",
       "startMonitorFromAppLaunch" : false
    }
 }

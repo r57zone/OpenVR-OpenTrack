@@ -2,13 +2,15 @@
 //=============== Changed by r57zone (https://github.com/r57zone) ===============
 
 #include <openvr_driver.h>
+//#include "driverlog.h"
 
 #include <vector>
 #include <thread>
 #include <chrono>
+
+#include <atlbase.h>
 //#include <Windows.h>
 //#include "Shlwapi.h"
-#include <atlbase.h>
 
 using namespace vr;
 
@@ -62,6 +64,10 @@ static const char * const k_pch_Sample_RenderWidth_Int32 = "renderWidth";
 static const char * const k_pch_Sample_RenderHeight_Int32 = "renderHeight";
 static const char * const k_pch_Sample_SecondsFromVsyncToPhotons_Float = "secondsFromVsyncToPhotons";
 static const char * const k_pch_Sample_DisplayFrequency_Float = "displayFrequency";
+static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
+static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
+static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
+static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
 
 typedef struct _FreeTrack
 {
@@ -206,6 +212,11 @@ public:
 		m_nRenderHeight = vr::VRSettings()->GetInt32(k_pch_Sample_Section, k_pch_Sample_RenderHeight_Int32);
 		m_flSecondsFromVsyncToPhotons = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_SecondsFromVsyncToPhotons_Float);
 		m_flDisplayFrequency = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DisplayFrequency_Float);
+
+		m_fDistortionK1 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK1_Float);
+		m_fDistortionK2 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK2_Float);
+		m_fZoomWidth = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomWidth_Float);
+		m_fZoomHeight = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomHeight_Float);
 
 		//DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_null: Model Number: %s\n", m_sModelNumber.c_str() );
@@ -394,12 +405,27 @@ public:
 	virtual DistortionCoordinates_t ComputeDistortion( EVREye eEye, float fU, float fV ) 
 	{
 		DistortionCoordinates_t coordinates;
-		coordinates.rfBlue[0] = fU;
-		coordinates.rfBlue[1] = fV;
-		coordinates.rfGreen[0] = fU;
-		coordinates.rfGreen[1] = fV;
-		coordinates.rfRed[0] = fU;
-		coordinates.rfRed[1] = fV;
+
+		//distortion for lens from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
+		float hX;
+		float hY;
+		double rr;
+		double r2;
+		double theta;
+
+		rr = sqrt((fU - 0.5f)*(fU - 0.5f) + (fV - 0.5f)*(fV - 0.5f));
+		r2 = rr * (1 + m_fDistortionK1*(rr*rr) + m_fDistortionK2*(rr*rr*rr*rr));
+		theta = atan2(fU - 0.5f, fV - 0.5f);
+		hX = sin(theta)*r2*m_fZoomWidth;
+		hY = cos(theta)*r2*m_fZoomHeight;
+
+		coordinates.rfBlue[0] = hX + 0.5f;
+		coordinates.rfBlue[1] = hY + 0.5f;
+		coordinates.rfGreen[0] = hX + 0.5f;
+		coordinates.rfGreen[1] = hY + 0.5f;
+		coordinates.rfRed[0] = hX + 0.5f;
+		coordinates.rfRed[1] = hY + 0.5f;
+
 		return coordinates;
 	}
 
@@ -468,6 +494,10 @@ private:
 	float m_flSecondsFromVsyncToPhotons;
 	float m_flDisplayFrequency;
 	float m_flIPD;
+	float m_fDistortionK1;
+	float m_fDistortionK2;
+	float m_fZoomWidth;
+	float m_fZoomHeight;
 };
 
 //-----------------------------------------------------------------------------
