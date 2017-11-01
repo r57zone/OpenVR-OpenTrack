@@ -8,8 +8,7 @@
 #include <thread>
 #include <chrono>
 
-#include <atlbase.h>
-//#include <Windows.h>
+#include <Windows.h>
 //#include "Shlwapi.h"
 
 using namespace vr;
@@ -68,41 +67,93 @@ static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
 static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
 static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
+static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
 
-typedef struct _FreeTrack
-{
-	unsigned long int dataID;
-	long int camWidth;
-	long int camHeight;
+#define FREETRACK_HEAP "FT_SharedMem"
+#define FREETRACK_MUTEX "FT_Mutext"
 
-	float yaw;
-	float pitch;
-	float roll;
-	float x;
-	float y;
-	float z;
+/* only 6 headpose floats and the data id are filled -sh */
+typedef struct FTData__ {
+	uint32_t DataID;
+	int32_t CamWidth;
+	int32_t CamHeight;
+	/* virtual pose */
+	float  Yaw;   /* positive yaw to the left */
+	float  Pitch; /* positive pitch up */
+	float  Roll;  /* positive roll to the left */
+	float  X;
+	float  Y;
+	float  Z;
+	/* raw pose with no smoothing, sensitivity, response curve etc. */
+	float  RawYaw;
+	float  RawPitch;
+	float  RawRoll;
+	float  RawX;
+	float  RawY;
+	float  RawZ;
+	/* raw points, sorted by Y, origin top left corner */
+	float  X1;
+	float  Y1;
+	float  X2;
+	float  Y2;
+	float  X3;
+	float  Y3;
+	float  X4;
+	float  Y4;
+} volatile FTData;
 
-	float rawyaw;
-	float rawpitch;
-	float rawroll;
-	float rawx;
-	float rawy;
-	float rawz;
+typedef struct FTHeap__ {
+	FTData data;
+	int32_t GameID;
+	union
+	{
+		unsigned char table[8];
+		int32_t table_ints[2];
+	};
+	int32_t GameID2;
+} volatile FTHeap;
 
-	float x1;
-	float y1;
-	float x2;
-	float y2;
-	float x3;
-	float y3;
-	float x4;
-	float y4;
-} TFreeTrack, *PFreeTrack;
-typedef bool(__stdcall *_GetData)(__out TFreeTrack *FreeTrack);
-_GetData GetData;
-HMODULE FreeTrackLib;
-TFreeTrack FreeTrack;
+static HANDLE hFTMemMap = 0;
+static FTHeap *ipc_heap = 0;
+static HANDLE ipc_mutex = 0;
+
+FTData *FreeTrack;
 bool HMDConnected = false;
+std::thread *pFTthread = NULL;
+
+//FreeTrack implementation from https://github.com/opentrack/opentrack/tree/unstable/freetrackclient
+static BOOL impl_create_mapping(void)
+{
+	if (ipc_heap != NULL)
+		return TRUE;
+
+	hFTMemMap = CreateFileMappingA(INVALID_HANDLE_VALUE,
+		NULL,
+		PAGE_READWRITE,
+		0,
+		sizeof(FTHeap),
+		(LPCSTR)FREETRACK_HEAP);
+
+	if (hFTMemMap == NULL)
+		return (ipc_heap = NULL), FALSE;
+
+	ipc_heap = (FTHeap*)MapViewOfFile(hFTMemMap, FILE_MAP_WRITE, 0, 0, sizeof(FTHeap));
+	ipc_mutex = CreateMutexA(NULL, FALSE, FREETRACK_MUTEX);
+
+	return TRUE;
+}
+
+void FTRead()
+{
+	while (HMDConnected) {
+		if (ipc_mutex && WaitForSingleObject(ipc_mutex, 16) == WAIT_OBJECT_0) {
+			memcpy(&FreeTrack, &ipc_heap, sizeof(FreeTrack));
+			if (ipc_heap->data.DataID > (1 << 29))
+				ipc_heap->data.DataID = 0;
+			ReleaseMutex(ipc_mutex);
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -170,6 +221,14 @@ EVRInitError CWatchdogDriver_Sample::Init( vr::IVRDriverContext *pDriverContext 
 
 void CWatchdogDriver_Sample::Cleanup()
 {
+	if (HMDConnected) {
+		HMDConnected = false;
+		if (pFTthread) {
+			pFTthread->join();
+			delete pFTthread;
+			pFTthread = nullptr;
+		}
+	}
 	g_bExiting = true;
 	if ( m_pWatchdogThread )
 	{
@@ -177,9 +236,6 @@ void CWatchdogDriver_Sample::Cleanup()
 		delete m_pWatchdogThread;
 		m_pWatchdogThread = nullptr;
 	}
-
-		if (FreeTrackLib != NULL) FreeLibrary(FreeTrackLib);
-		FreeTrackLib = nullptr;
 }
 
 
@@ -217,6 +273,7 @@ public:
 		m_fDistortionK2 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK2_Float);
 		m_fZoomWidth = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomWidth_Float);
 		m_fZoomHeight = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomHeight_Float);
+		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_Sample_Section, k_pch_Sample_DebugMode_Bool);
 
 		//DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_null: Model Number: %s\n", m_sModelNumber.c_str() );
@@ -226,35 +283,14 @@ public:
 		//DriverLog( "driver_null: Display Frequency: %f\n", m_flDisplayFrequency );
 		//DriverLog( "driver_null: IPD: %f\n", m_flIPD ); 
 
-		CRegKey key;
-		TCHAR libPath[MAX_PATH];
-
-		LONG status = key.Open(HKEY_CURRENT_USER, _T("Software\\OpenVR-OpenTrack"));
-		if (status == ERROR_SUCCESS)
-		{
-			ULONG libPathSize = sizeof(libPath);
-
-			#ifdef _WIN64
-				status = key.QueryStringValue(_T("FreeTrack64"), libPath, &libPathSize);
-			#else
-				status = key.QueryStringValue(_T("FreeTrack"), libPath, &libPathSize);
-			#endif
-
-
-			if (status == ERROR_SUCCESS)
-			{
-				if (PathFileExists(libPath)) {
-					HMDConnected = true;
-					FreeTrackLib = LoadLibrary(libPath);
-					GetData = (_GetData)GetProcAddress(FreeTrackLib, "FTGetData");
-
-					if (GetData == NULL) HMDConnected = false;
-				}
-			}
-		}
-
-		key.Close();
 		
+		if (impl_create_mapping() == false) {
+			HMDConnected = false;
+		}
+		else {
+			HMDConnected = true;
+			pFTthread = new std::thread(FTRead);
+		}
 	}
 
 	virtual ~CSampleDeviceDriver()
@@ -281,6 +317,8 @@ public:
 		// avoid "not fullscreen" warnings from vrmonitor
 		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_IsOnDesktop_Bool, false );
 
+		//Debug mode activate Windowed Mode (borderless fullscreen) on "Headset Window" and you can move window to second screen with buttons (Shift + Win + Right or Left), but lock to 30 FPS 
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, m_bDebugMode);
 		// Icons can be configured in code or automatically configured by an external file "drivername\resources\driver.vrresources".
 		// Icon properties NOT configured in code (post Activate) are then auto-configured by the optional presence of a driver's "drivername\resources\driver.vrresources".
 		// In this manner a driver can configure their icons in a flexible data driven fashion by using an external file.
@@ -406,7 +444,7 @@ public:
 	{
 		DistortionCoordinates_t coordinates;
 
-		//distortion for lens from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
+		//Distortion for lens implementation from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
 		float hX;
 		float hY;
 		double rr;
@@ -447,18 +485,16 @@ public:
 		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
 
 		if (HMDConnected) {
-			GetData(&FreeTrack);
-
 			//Set head tracking rotation
-			pose.qRotation.w = cos(FreeTrack.yaw * 0.5) * cos(FreeTrack.roll * 0.5) * cos(FreeTrack.pitch * 0.5) + sin(FreeTrack.yaw * 0.5) * sin(FreeTrack.roll * 0.5) * sin(FreeTrack.pitch * 0.5);
-			pose.qRotation.x = cos(FreeTrack.yaw * 0.5) * sin(FreeTrack.roll * 0.5) * cos(FreeTrack.pitch * 0.5) - sin(FreeTrack.yaw * 0.5) * cos(FreeTrack.roll * 0.5) * sin(FreeTrack.pitch * 0.5);
-			pose.qRotation.y = cos(FreeTrack.yaw * 0.5) * cos(FreeTrack.roll * 0.5) * sin(FreeTrack.pitch * 0.5) + sin(FreeTrack.yaw * 0.5) * sin(FreeTrack.roll * 0.5) * cos(FreeTrack.pitch * 0.5);
-			pose.qRotation.z = sin(FreeTrack.yaw * 0.5) * cos(FreeTrack.roll * 0.5) * cos(FreeTrack.pitch * 0.5) - cos(FreeTrack.yaw * 0.5) * sin(FreeTrack.roll * 0.5) * sin(FreeTrack.pitch * 0.5);
+			pose.qRotation.w = cos(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) + sin(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
+			pose.qRotation.x = cos(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) - sin(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
+			pose.qRotation.y = cos(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5) + sin(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5);
+			pose.qRotation.z = sin(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) - cos(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
 
 			//Set position tracking
-			pose.vecPosition[0] = FreeTrack.x; ///?
-			pose.vecPosition[1] = FreeTrack.y; ///?
-			pose.vecPosition[2] = FreeTrack.z; ///?
+			pose.vecPosition[0] = FreeTrack->X; ///?
+			pose.vecPosition[1] = FreeTrack->Y; ///?
+			pose.vecPosition[2] = FreeTrack->Z; ///?
 		}
 
 		return pose;
@@ -498,6 +534,7 @@ private:
 	float m_fDistortionK2;
 	float m_fZoomWidth;
 	float m_fZoomHeight;
+	bool m_bDebugMode;
 };
 
 //-----------------------------------------------------------------------------
@@ -541,9 +578,14 @@ EVRInitError CServerDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
 
 void CServerDriver_Sample::Cleanup() 
 {
-	if (FreeTrackLib != NULL) FreeLibrary(FreeTrackLib);
-	FreeTrackLib = nullptr;
-
+	if (HMDConnected) {
+		HMDConnected = false;
+		if (pFTthread) {
+			pFTthread->join();
+			delete pFTthread;
+			pFTthread = nullptr;
+		}
+	}
 	delete m_pNullHmdLatest;
 	m_pNullHmdLatest = NULL;
 }

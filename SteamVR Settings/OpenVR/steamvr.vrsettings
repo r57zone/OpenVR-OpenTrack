@@ -16,14 +16,14 @@
 	  "DistortionK1" : 0.91,
 	  "DistortionK2" : 0.93,
 	  "ZoomWidth" : 0.8,
-	  "ZoomHeight" : 0.8
+	  "ZoomHeight" : 0.8,
+	  "DebugMode" : <DEBUGMODE>
    },
    "steamvr" : {
       "activateMultipleDrivers" : true,
       "directMode" : false,
       "enableHomeApp" : false,
       "forcedDriver" : "null",
-      "mirrorViewGeometry" : "0 0 960 540",
       "startMonitorFromAppLaunch" : false
    }
 }

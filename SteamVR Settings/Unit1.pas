@@ -22,6 +22,8 @@ type
     AboutBtn: TButton;
     XPManifest: TXPManifest;
     DisplayLbl: TLabel;
+    DbgMdCb: TCheckBox;
+    DbgMdLbl: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure AboutBtnClick(Sender: TObject);
     procedure DisplayTBChange(Sender: TObject);
@@ -50,6 +52,8 @@ begin
   DisplayTB.Max:=Screen.MonitorCount - 1;
   RndWidthEdt.Text:=IntToStr(Screen.Monitors[0].Width);
   RndHeightEdt.Text:=IntToStr(Screen.Monitors[0].Height);
+
+  DbgMdLbl.Caption:=DbgMdLbl.Caption + #13#10 + 'Windowed borderless fullscreen' + #13#10 + 'with lock to 30 FPS';
 end;
 
 procedure TMain.AboutBtnClick(Sender: TObject);
@@ -94,6 +98,11 @@ begin
       Config.Text:=StringReplace(Config.Text, '<WINDOWX>', IntToStr(Screen.Monitors[DisplayTB.Position].Left), [rfReplaceAll]);
       Config.Text:=StringReplace(Config.Text, '<WINDOWY>', IntToStr(Screen.Monitors[DisplayTB.Position].Top), [rfReplaceAll]);
 
+      if DbgMdCb.Checked then
+        Config.Text:=StringReplace(Config.Text, '<DEBUGMODE>', 'true', [rfReplaceAll])
+      else
+        Config.Text:=StringReplace(Config.Text, '<DEBUGMODE>', 'false', [rfReplaceAll]);
+
       Config.SaveToFile(SteamPath + '\config\steamvr.vrsettings');
 
       Config.Free;
@@ -113,21 +122,6 @@ begin
 
     end else begin //FreeTrack
 
-      if not ((CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\FreeTrackClient.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\FreeTrackClient.dll'), false)) and
-      (CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\FreeTrackClient64.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\FreeTrackClient64.dll'), false))) then begin
-        ShowMessage('Error copy driver files. Please close Steam and SteamVR.');
-        Error:=true;
-      end;
-
-      Reg:=TRegistry.Create;
-      Reg.RootKey:=HKEY_CURRENT_USER;
-      if (Reg.OpenKey('\Software\OpenVR-OpenTrack', true)) then begin
-        Reg.WriteString('FreeTrack', SteamPath + '\steamapps\common\SteamVR\drivers\null\FreeTrackClient.dll');
-        Reg.WriteString('FreeTrack64', SteamPath + '\steamapps\common\SteamVR\drivers\null\FreeTrackClient64.dll');
-      end;
-      Reg.CloseKey;
-      Reg.Free;
-
       if not ((CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverFreeTrack32.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win32\driver_null.dll'), false)) and
       (CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverFreeTrack64.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win64\driver_null.dll'), false))) then begin
         ShowMessage('Error copy driver files. Please close Steam and SteamVR.');
@@ -139,7 +133,7 @@ begin
 
   end else ShowMessage('Steam not found. Please install Steam and SteamVR');
   
-  Close;
+  if Error = false then Close;
 end;
 
 procedure TMain.CancelBtnClick(Sender: TObject);

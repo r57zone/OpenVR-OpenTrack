@@ -4,7 +4,7 @@ object Main: TMain
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'SteamVR Settings'
-  ClientHeight = 148
+  ClientHeight = 197
   ClientWidth = 292
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -52,6 +52,13 @@ object Main: TMain
     Height = 13
     Caption = '1'
   end
+  object DbgMdLbl: TLabel
+    Left = 8
+    Top = 112
+    Width = 161
+    Height = 13
+    Caption = 'Debug mode (not recommended): '
+  end
   object DisplayTB: TTrackBar
     Left = 192
     Top = 8
@@ -97,7 +104,7 @@ object Main: TMain
   end
   object ApplyBtn: TButton
     Left = 8
-    Top = 115
+    Top = 163
     Width = 75
     Height = 25
     Caption = 'Apply'
@@ -106,7 +113,7 @@ object Main: TMain
   end
   object CancelBtn: TButton
     Left = 88
-    Top = 115
+    Top = 163
     Width = 75
     Height = 25
     Caption = 'Cancel'
@@ -115,15 +122,23 @@ object Main: TMain
   end
   object AboutBtn: TButton
     Left = 256
-    Top = 115
+    Top = 163
     Width = 28
     Height = 25
     Caption = '?'
     TabOrder = 7
     OnClick = AboutBtnClick
   end
+  object DbgMdCb: TCheckBox
+    Left = 224
+    Top = 112
+    Width = 60
+    Height = 17
+    Caption = 'Activate'
+    TabOrder = 8
+  end
   object XPManifest: TXPManifest
     Left = 224
-    Top = 115
+    Top = 163
   end
 end

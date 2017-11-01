@@ -69,6 +69,7 @@ static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
 static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
 static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
+static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
 
 //OpenTrack vars
 double qW, qX, qY, qZ;
@@ -249,6 +250,7 @@ public:
 		m_fDistortionK2 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK2_Float);
 		m_fZoomWidth = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomWidth_Float);
 		m_fZoomHeight = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomHeight_Float);
+		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_Sample_Section, k_pch_Sample_DebugMode_Bool);
 
 		//DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_null: Model Number: %s\n", m_sModelNumber.c_str() );
@@ -326,8 +328,7 @@ public:
 		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_IsOnDesktop_Bool, false );
 
 		//Debug mode activate Windowed Mode (borderless fullscreen) on "Headset Window" and you can move window to second screen with buttons (Shift + Win + Right or Left), but lock to 30 FPS 
-		//vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, true);
-
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, m_bDebugMode);
 		// Icons can be configured in code or automatically configured by an external file "drivername\resources\driver.vrresources".
 		// Icon properties NOT configured in code (post Activate) are then auto-configured by the optional presence of a driver's "drivername\resources\driver.vrresources".
 		// In this manner a driver can configure their icons in a flexible data driven fashion by using an external file.
@@ -453,7 +454,7 @@ public:
 	{
 		DistortionCoordinates_t coordinates;
 
-		//distortion for lens from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
+		//Distortion for lens implementation from https://github.com/HelenXR/openvr_survivor/blob/master/src/head_mount_display_device.cc
 		float hX;
 		float hY;
 		double rr;
@@ -544,6 +545,7 @@ private:
 	float m_fDistortionK2;
 	float m_fZoomWidth;
 	float m_fZoomHeight;
+	bool m_bDebugMode;
 };
 
 //-----------------------------------------------------------------------------
