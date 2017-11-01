@@ -8,7 +8,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 
 ## Setup
 1. Start "SteamVR Settings", select the monitor number and driver type "FreeTrack" or "UDP over network" (both are supported in OpenTrack, I recommend using FreeTrack). Also, if you do not have a high-performance computer, you can change the rendering resolution.
-2. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hot centering key, change output interface "freetrack 2.0 Enhanced" or "UDP over network", depending on the selected driver. If you selected UDP, then in the output interface settings you need to set IP "127.0.0.1".<br><br>
+2. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hot centering key, disable filter, change output interface "freetrack 2.0 Enhanced" or "UDP over network", depending on the selected driver). If you selected UDP, then in the output interface settings you need to set IP "127.0.0.1".<br><br>
 
 If you are using an Android smartphone, you need to use FreePie IMU from the OpenTrack archive to tracking and you can use the "Moonlight" application (for Nvidia 600 series only and above) or for any other application to stream pictures from the monitor screen.<br><br>
 If you use the Arduino Razor IMU tracker, you can use the standard [TrueOpenVR](https://github.com/TrueOpenVR), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
