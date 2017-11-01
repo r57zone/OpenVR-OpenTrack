@@ -3,6 +3,8 @@
 # OpenVR OpenTrack
 Драйвер для OpenVR / SteamVR, позволяющий вращать головой, с помощью любого [OpenTrack](https://github.com/opentrack/opentrack) трекера, для самодельного VR шлема из Android смартфона или [HDMI дисплея](http://ali.pub/1llt51) и трекера.<br>
 <br>OpenTrack поддерживает следующие трекеры: FreePie UDP receiver (FreePie IMU для Android), Hatire Arduino ([Arduino](http://ali.pub/1lltzk) + [GY-85](http://ali.pub/1lltk0)), [Oculus DK1](http://ali.pub/1llqtf), Aruco (Paper + WebCam) и другие.<br>
+<br>[![youtube-freetrack](https://user-images.githubusercontent.com/9499881/32277549-411d313c-bf2c-11e7-9b07-77a903783cf5.gif)](https://youtu.be/mDkdj_vn5Lk)
+[![youtube-opentrack](https://user-images.githubusercontent.com/9499881/27535649-d8822f38-5a7c-11e7-8681-4e42ded2eb1c.gif)](https://youtu.be/r-xJ0oMcltY)
 
 ## Настройка 
 1. Запустить "SteamVR Settings", выбрать номер монитора и тип драйвера "FreeTrack" или "UDP over network" (оба поддерживаются в OpenTrack, рекомендую использовать FreeTrack). Также если у вас недостаточно производительный компьютер, то можно уменьшить разрешение рендера.
