@@ -16,5 +16,8 @@
 >Версия для x86 и x64.<br>
 **[Загрузить](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
 
+## Поддержка
+Bitcoin: `1EvqAg7b2R7EWpKjLvVGp5jCmnJiRZ7pHE`
+
 ## Обратная связь
 `r57zone[собака]gmail.com`
