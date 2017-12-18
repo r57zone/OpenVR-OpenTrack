@@ -492,9 +492,9 @@ public:
 			pose.qRotation.z = sin(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) - cos(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
 
 			//Set position tracking
-			pose.vecPosition[0] = FreeTrack->X; ///?
-			pose.vecPosition[1] = FreeTrack->Y; ///?
-			pose.vecPosition[2] = FreeTrack->Z; ///?
+			pose.vecPosition[0] = FreeTrack->X * 0.001; //millimeters to meters
+			pose.vecPosition[1] = FreeTrack->Y * 0.001; //millimeters to meters 
+			pose.vecPosition[2] = FreeTrack->Z * 0.001; //millimeters to meters 
 		}
 
 		return pose;
