@@ -58,7 +58,9 @@ end;
 
 procedure TMain.AboutBtnClick(Sender: TObject);
 begin
-  Application.MessageBox('OpenVR OpenTrack' + #13#10 + 'https://github.com/r57zone/OpenVR-OpenTrack' + #13#10 + 'r57zone@gmail.com', PChar(Caption), 0);
+  Application.MessageBox('OpenVR OpenTrack' + #13#10 +
+  'https://github.com/r57zone/OpenVR-OpenTrack' + #13#10 +
+  'r57zone@gmail.com', PChar(Caption), MB_ICONINFORMATION);
 end;
 
 procedure TMain.DisplayTBChange(Sender: TObject);
@@ -107,7 +109,7 @@ begin
 
       Config.Free;
     end else begin
-      ShowMessage('File "steamvr.vrsettings" not found.');
+      Application.MessageBox('File "steamvr.vrsettings" not found.', PChar(Caption), MB_ICONERROR);
       Error:=true;
     end;
 
@@ -116,7 +118,7 @@ begin
 
       if not ((CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverUDP32.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win32\driver_null.dll'), false)) and
       (CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverUDP64.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win64\driver_null.dll'), false))) then begin
-        ShowMessage('Error copy driver files. Please close Steam and SteamVR.');
+        Application.MessageBox('Error copy driver files. Please close Steam and SteamVR.', PChar(Caption), MB_ICONERROR);
         Error:=true;
       end;
 
@@ -124,16 +126,19 @@ begin
 
       if not ((CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverFreeTrack32.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win32\driver_null.dll'), false)) and
       (CopyFile(PChar(ExtractFilePath(ParamStr(0)) + 'OpenVR\DriverFreeTrack64.dll'), PChar(SteamPath + '\steamapps\common\SteamVR\drivers\null\bin\win64\driver_null.dll'), false))) then begin
-        ShowMessage('Error copy driver files. Please close Steam and SteamVR.');
+        Application.MessageBox('Error copy driver files. Please close Steam and SteamVR.', PChar(Caption), MB_ICONERROR);
         Error:=true;
       end;
     end;
 
-    if Error = false then ShowMessage('Done');
+    if Error = false then
+      Application.MessageBox('Done', PChar(Caption), MB_ICONINFORMATION);
 
-  end else ShowMessage('Steam not found. Please install Steam and SteamVR');
+  end else
+    ShowMessage('Steam not found. Please install Steam and SteamVR');
   
-  if Error = false then Close;
+  if Error = false then
+    Close;
 end;
 
 procedure TMain.CancelBtnClick(Sender: TObject);
