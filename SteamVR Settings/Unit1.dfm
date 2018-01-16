@@ -4,8 +4,8 @@ object Main: TMain
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'SteamVR Settings'
-  ClientHeight = 197
-  ClientWidth = 292
+  ClientHeight = 227
+  ClientWidth = 608
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -32,7 +32,7 @@ object Main: TMain
     Caption = 'Render resolution :'
   end
   object XLbl: TLabel
-    Left = 214
+    Left = 206
     Top = 46
     Width = 5
     Height = 13
@@ -40,13 +40,13 @@ object Main: TMain
   end
   object ChsDriverLbl: TLabel
     Left = 8
-    Top = 82
+    Top = 81
     Width = 71
     Height = 13
     Caption = 'Choose driver: '
   end
   object DisplayLbl: TLabel
-    Left = 272
+    Left = 264
     Top = 12
     Width = 6
     Height = 13
@@ -59,8 +59,72 @@ object Main: TMain
     Height = 13
     Caption = 'Debug mode (not recommended): '
   end
+  object MoreSettingsLbl: TLabel
+    Left = 104
+    Top = 163
+    Width = 72
+    Height = 13
+    Cursor = crHandPoint
+    Caption = 'More settings...'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = MoreSettingsLblClick
+  end
+  object DistortionLbl: TLabel
+    Left = 304
+    Top = 12
+    Width = 120
+    Height = 13
+    Caption = 'Distortion coefficient 1, 2:'
+  end
+  object ZoomLbl: TLabel
+    Left = 304
+    Top = 54
+    Width = 93
+    Height = 13
+    Caption = 'Zoom width, height:'
+  end
+  object Label1: TLabel
+    Left = 565
+    Top = 183
+    Width = 17
+    Height = 13
+    Caption = 'ghz'
+  end
+  object DistanceEyesLbl: TLabel
+    Left = 304
+    Top = 109
+    Width = 196
+    Height = 13
+    Caption = 'Zoom out the distance between the eyes:'
+  end
+  object Label3: TLabel
+    Left = 565
+    Top = 109
+    Width = 26
+    Height = 13
+    Caption = 'pixels'
+  end
+  object IPDLbl: TLabel
+    Left = 304
+    Top = 145
+    Width = 132
+    Height = 13
+    Caption = 'Interpupillary distance (IPD):'
+  end
+  object Label5: TLabel
+    Left = 565
+    Top = 146
+    Width = 16
+    Height = 13
+    Caption = 'mm'
+  end
   object DisplayTB: TTrackBar
-    Left = 192
+    Left = 184
     Top = 8
     Width = 73
     Height = 30
@@ -69,7 +133,7 @@ object Main: TMain
     OnChange = DisplayTBChange
   end
   object RndWidthEdt: TEdit
-    Left = 152
+    Left = 144
     Top = 43
     Width = 49
     Height = 21
@@ -77,7 +141,7 @@ object Main: TMain
     Text = '0'
   end
   object RndHeightEdt: TEdit
-    Left = 232
+    Left = 224
     Top = 43
     Width = 49
     Height = 21
@@ -85,7 +149,7 @@ object Main: TMain
     Text = '0'
   end
   object FreeTrackRB: TRadioButton
-    Left = 104
+    Left = 96
     Top = 80
     Width = 73
     Height = 17
@@ -95,50 +159,116 @@ object Main: TMain
     TabStop = True
   end
   object UDPRB: TRadioButton
-    Left = 176
+    Left = 168
     Top = 80
     Width = 106
     Height = 17
     Caption = 'UDP over network'
     TabOrder = 4
   end
-  object ApplyBtn: TButton
-    Left = 8
-    Top = 163
-    Width = 75
+  object DbgMdCb: TCheckBox
+    Left = 216
+    Top = 119
+    Width = 60
+    Height = 17
+    Caption = 'Activate'
+    TabOrder = 5
+  end
+  object DistortionK1Edt: TEdit
+    Left = 472
+    Top = 14
+    Width = 57
+    Height = 21
+    TabOrder = 8
+    Text = '0.91'
+  end
+  object DistortionK2Edt: TEdit
+    Left = 536
+    Top = 13
+    Width = 57
+    Height = 21
+    TabOrder = 9
+    Text = '0.93'
+  end
+  object ZoomWidthEdt: TEdit
+    Left = 472
+    Top = 55
+    Width = 57
+    Height = 21
+    TabOrder = 10
+    Text = '0.8'
+  end
+  object ZoomHeightEdt: TEdit
+    Left = 536
+    Top = 55
+    Width = 57
+    Height = 21
+    TabOrder = 11
+    Text = '0.8'
+  end
+  object AboutBtn: TButton
+    Left = 248
+    Top = 192
+    Width = 28
     Height = 25
-    Caption = 'Apply'
-    TabOrder = 6
-    OnClick = ApplyBtnClick
+    Caption = '?'
+    TabOrder = 15
+    OnClick = AboutBtnClick
   end
   object CancelBtn: TButton
     Left = 88
-    Top = 163
+    Top = 192
     Width = 75
     Height = 25
     Caption = 'Cancel'
     TabOrder = 7
     OnClick = CancelBtnClick
   end
-  object AboutBtn: TButton
-    Left = 256
-    Top = 163
-    Width = 28
+  object ApplyBtn: TButton
+    Left = 8
+    Top = 192
+    Width = 75
     Height = 25
-    Caption = '?'
-    TabOrder = 8
-    OnClick = AboutBtnClick
+    Caption = 'Apply'
+    TabOrder = 6
+    OnClick = ApplyBtnClick
   end
-  object DbgMdCb: TCheckBox
-    Left = 224
-    Top = 112
-    Width = 60
+  object ChangeDisplayFrequencyCB: TCheckBox
+    Left = 304
+    Top = 181
+    Width = 145
     Height = 17
-    Caption = 'Activate'
-    TabOrder = 5
+    Caption = 'Change display frequency'
+    TabOrder = 16
+    OnClick = ChangeDisplayFrequencyCBClick
+  end
+  object DisplayFrequencyEdt: TEdit
+    Left = 512
+    Top = 179
+    Width = 49
+    Height = 21
+    Enabled = False
+    TabOrder = 14
+    Text = '0'
+  end
+  object IPDEdt: TEdit
+    Left = 512
+    Top = 143
+    Width = 49
+    Height = 21
+    TabOrder = 13
+    Text = '0.065'
+  end
+  object DistanceEyesEdt: TEdit
+    Left = 512
+    Top = 106
+    Width = 49
+    Height = 21
+    TabOrder = 12
+    Text = '0'
   end
   object XPManifest: TXPManifest
-    Left = 224
-    Top = 163
+    Left = 160
+    Top = 3
   end
 end

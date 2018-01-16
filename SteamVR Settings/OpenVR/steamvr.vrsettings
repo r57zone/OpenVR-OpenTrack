@@ -13,10 +13,13 @@
       "windowHeight" : <WINDOWHEIGHT>,
       "windowX" : <WINDOWX>,
       "windowY" : <WINDOWY>,
-	  "DistortionK1" : 0.91,
-	  "DistortionK2" : 0.93,
-	  "ZoomWidth" : 0.8,
-	  "ZoomHeight" : 0.8,
+	  "DistortionK1" : <DISTORTIONK1>,
+	  "DistortionK2" : <DISTORTIONK2>,
+	  "ZoomWidth" : <ZOOMWIDTH>,
+	  "ZoomHeight" : <ZOOMHEIGHT>,
+	  "ipd" : <IPD>,
+	  "DistanceBetweenEyes" : <DISTANCEEYES>,
+	  "ScreenOffsetX" : 0,
 	  "DebugMode" : <DEBUGMODE>
    },
    "steamvr" : {

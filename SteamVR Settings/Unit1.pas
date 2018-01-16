@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, XPMan, Registry;
+  Dialogs, StdCtrls, ComCtrls, XPMan, Registry, ExtCtrls;
 
 type
   TMain = class(TForm)
@@ -17,18 +17,36 @@ type
     FreeTrackRB: TRadioButton;
     UDPRB: TRadioButton;
     ChsDriverLbl: TLabel;
-    ApplyBtn: TButton;
-    CancelBtn: TButton;
-    AboutBtn: TButton;
     XPManifest: TXPManifest;
     DisplayLbl: TLabel;
     DbgMdCb: TCheckBox;
     DbgMdLbl: TLabel;
+    MoreSettingsLbl: TLabel;
+    DistortionLbl: TLabel;
+    DistortionK1Edt: TEdit;
+    DistortionK2Edt: TEdit;
+    ZoomLbl: TLabel;
+    ZoomWidthEdt: TEdit;
+    ZoomHeightEdt: TEdit;
+    AboutBtn: TButton;
+    CancelBtn: TButton;
+    ApplyBtn: TButton;
+    ChangeDisplayFrequencyCB: TCheckBox;
+    DisplayFrequencyEdt: TEdit;
+    Label1: TLabel;
+    DistanceEyesLbl: TLabel;
+    IPDEdt: TEdit;
+    DistanceEyesEdt: TEdit;
+    Label3: TLabel;
+    IPDLbl: TLabel;
+    Label5: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure AboutBtnClick(Sender: TObject);
     procedure DisplayTBChange(Sender: TObject);
     procedure ApplyBtnClick(Sender: TObject);
     procedure CancelBtnClick(Sender: TObject);
+    procedure MoreSettingsLblClick(Sender: TObject);
+    procedure ChangeDisplayFrequencyCBClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -45,15 +63,20 @@ implementation
 procedure TMain.FormCreate(Sender: TObject);
 begin
   Application.Title:=Caption;
+  Width:=300;
 
   SetWindowLong(RndWidthEdt.Handle, GWL_STYLE, GetWindowLong(RndWidthEdt.Handle, GWL_STYLE) or ES_NUMBER);
   SetWindowLong(RndHeightEdt.Handle, GWL_STYLE, GetWindowLong(RndHeightEdt.Handle, GWL_STYLE) or ES_NUMBER);
+  SetWindowLong(DisplayFrequencyEdt.Handle, GWL_STYLE, GetWindowLong(DisplayFrequencyEdt.Handle, GWL_STYLE) or ES_NUMBER);
+  SetWindowLong(DistanceEyesEdt.Handle, GWL_STYLE, GetWindowLong(DistanceEyesEdt.Handle, GWL_STYLE) or ES_NUMBER);
 
   DisplayTB.Max:=Screen.MonitorCount - 1;
   RndWidthEdt.Text:=IntToStr(Screen.Monitors[0].Width);
   RndHeightEdt.Text:=IntToStr(Screen.Monitors[0].Height);
 
-  DbgMdLbl.Caption:=DbgMdLbl.Caption + #13#10 + 'Windowed borderless fullscreen' + #13#10 + 'with lock to 30 FPS';
+  DbgMdLbl.Caption:=DbgMdLbl.Caption + #13#10 + 'Windowed borderless fullscreen' + #13#10 + 'with lock to 30 FPS.';
+  DistortionLbl.Caption:=DistortionLbl.Caption + #13#10 + 'Lens distortion for output view.';
+  ZoomLbl.Caption:=ZoomLbl.Caption + #13#10 + 'Eyes output view sizes.' + #13#10 + 'The larger the value, the smaller the output view.';
 end;
 
 procedure TMain.AboutBtnClick(Sender: TObject);
@@ -91,6 +114,10 @@ begin
     if FileExists(ExtractFilePath(ParamStr(0)) + 'OpenVR\steamvr.vrsettings') then begin
       Config:=TStringList.Create;
       Config.LoadFromFile(ExtractFilePath(ParamStr(0)) + 'OpenVR\steamvr.vrsettings');
+
+      if (ChangeDisplayFrequencyCB.Checked) and (DisplayFrequencyEdt.Text <> '0') then
+        Config.Text:=StringReplace(Config.Text, '<WINDOWY>,', '<WINDOWY>,' + #13#10 + #9 + '  "displayFrequency" : ' + DisplayFrequencyEdt.Text + ',', [rfReplaceAll]);
+
       Config.Text:=StringReplace(Config.Text, '<RENDERWIDTH>', RndWidthEdt.Text, [rfReplaceAll]);
       Config.Text:=StringReplace(Config.Text, '<RENDERHEIGHT>', RndHeightEdt.Text, [rfReplaceAll]);
 
@@ -99,6 +126,16 @@ begin
 
       Config.Text:=StringReplace(Config.Text, '<WINDOWX>', IntToStr(Screen.Monitors[DisplayTB.Position].Left), [rfReplaceAll]);
       Config.Text:=StringReplace(Config.Text, '<WINDOWY>', IntToStr(Screen.Monitors[DisplayTB.Position].Top), [rfReplaceAll]);
+
+      Config.Text:=StringReplace(Config.Text, '<DISTORTIONK1>', DistortionK1Edt.Text, [rfReplaceAll]);
+      Config.Text:=StringReplace(Config.Text, '<DISTORTIONK2>', DistortionK2Edt.Text, [rfReplaceAll]);
+
+      Config.Text:=StringReplace(Config.Text, '<ZOOMWIDTH>', ZoomWidthEdt.Text, [rfReplaceAll]);
+      Config.Text:=StringReplace(Config.Text, '<ZOOMHEIGHT>', ZoomHeightEdt.Text, [rfReplaceAll]);
+
+      Config.Text:=StringReplace(Config.Text, '<IPD>', IPDEdt.Text, [rfReplaceAll]);
+
+      Config.Text:=StringReplace(Config.Text, '<DISTANCEEYES>', DistanceEyesEdt.Text, [rfReplaceAll]);
 
       if DbgMdCb.Checked then
         Config.Text:=StringReplace(Config.Text, '<DEBUGMODE>', 'true', [rfReplaceAll])
@@ -144,6 +181,22 @@ end;
 procedure TMain.CancelBtnClick(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TMain.MoreSettingsLblClick(Sender: TObject);
+begin
+  if Width = 300 then
+    Width:=608
+  else
+    Width:=300;
+end;
+
+procedure TMain.ChangeDisplayFrequencyCBClick(Sender: TObject);
+begin
+  if ChangeDisplayFrequencyCB.Checked then
+    DisplayFrequencyEdt.Enabled:=true
+  else
+    DisplayFrequencyEdt.Enabled:=false;
 end;
 
 end.
