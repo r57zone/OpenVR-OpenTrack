@@ -69,6 +69,8 @@ static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
 static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
 static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
+static const char * const k_pch_Sample_DistanceBetweenEyes_Int32 = "DistanceBetweenEyes";
+static const char * const k_pch_Sample_ScreenOffsetX_Int32 = "ScreenOffsetX";
 static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
 
 //OpenTrack vars
@@ -250,6 +252,8 @@ public:
 		m_fDistortionK2 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK2_Float);
 		m_fZoomWidth = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomWidth_Float);
 		m_fZoomHeight = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomHeight_Float);
+		m_nDistanceBetweenEyes = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistanceBetweenEyes_Int32);
+		m_nScreenOffsetX = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ScreenOffsetX_Int32);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_Sample_Section, k_pch_Sample_DebugMode_Bool);
 
 		//DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
@@ -428,17 +432,17 @@ public:
 
 	virtual void GetEyeOutputViewport( EVREye eEye, uint32_t *pnX, uint32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight ) 
 	{
-		*pnY = 0;
+		*pnY = m_nScreenOffsetX;
 		*pnWidth = m_nWindowWidth / 2;
 		*pnHeight = m_nWindowHeight;
-	
-		if ( eEye == Eye_Left )
+
+		if (eEye == Eye_Left)
 		{
-			*pnX = 0;
+			*pnX = m_nDistanceBetweenEyes;
 		}
 		else
 		{
-			*pnX = m_nWindowWidth / 2;
+			*pnX = (m_nWindowWidth / 2) - m_nDistanceBetweenEyes;
 		}
 	}
 
@@ -545,6 +549,8 @@ private:
 	float m_fDistortionK2;
 	float m_fZoomWidth;
 	float m_fZoomHeight;
+	int32_t m_nDistanceBetweenEyes;
+	int32_t m_nScreenOffsetX;
 	bool m_bDebugMode;
 };
 
