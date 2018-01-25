@@ -12,6 +12,10 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 If you are using an Android smartphone, you need to use FreePie IMU from the OpenTrack archive to tracking and you can use the "Moonlight" application (for Nvidia 600 series only and above) or for any other application to stream pictures from the monitor screen.<br><br>
 If you use the Arduino Razor IMU tracker, you can use the standard [TrueOpenVR](https://github.com/TrueOpenVR), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
 
+## Known Issues
+1. Red screen. You can fix this by selecting the "Headset Window" window.
+2. The keyboard, mouse and gamepad do not work when using the driver on one monitor. On systems with multiple monitors, you can transfer the application itself to a second monitor and select it, then everything will work.
+
 ## Download
 >Version for x86 и x64.<br>
 **[Download](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
