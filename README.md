@@ -20,8 +20,5 @@ If you use the Arduino Razor IMU tracker, you can use the standard [TrueOpenVR](
 >Version for x86 и x64.<br>
 **[Download](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
 
-## Donate
-Bitcoin: `1EvqAg7b2R7EWpKjLvVGp5jCmnJiRZ7pHE`
-
 ## Feedback
 `r57zone[at]gmail.com`
