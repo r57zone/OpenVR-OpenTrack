@@ -14,7 +14,7 @@ If you use the Arduino Razor IMU tracker, you can use the standard [TrueOpenVR](
 
 ## Known Issues
 1. Red screen. You can fix this by selecting the "Headset Window" window.
-2. The keyboard, mouse and gamepad do not work when using the driver on one monitor. On systems with multiple monitors, you can transfer the application itself to a second monitor and select it, then everything will work.
+2. The keyboard, mouse and gamepad do not work when using the driver on one monitor. On systems with multiple monitors, you can move the application to second monitor and select it, then everything will work.
 
 ## Download
 >Version for x86 и x64.<br>
