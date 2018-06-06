@@ -2,7 +2,7 @@
 [![RU](https://user-images.githubusercontent.com/9499881/27683795-5b0fbac6-5cd8-11e7-929c-057833e01fb1.png)](https://github.com/r57zone/OpenVR-OpenTrack/blob/master/README.RU.md) 
 # OpenVR OpenTrack
 Драйвер для OpenVR / SteamVR, позволяющий вращать головой, с помощью любого [OpenTrack](https://github.com/opentrack/opentrack) трекера, для самодельного VR шлема из Android смартфона или [HDMI дисплея](http://ali.pub/1llt51) и трекера.<br>
-<br>OpenTrack поддерживает следующие трекеры: FreePie UDP receiver (FreePie IMU для Android), Hatire Arduino или Razor IMU ([Arduino](http://ali.pub/1lltzk) + [GY-85](http://ali.pub/1lltk0)), [Oculus DK1](http://ali.pub/1llqtf), Aruco (Paper + [WebCam](http://ali.pub/2k9jf6)) и другие.<br>
+<br>OpenTrack поддерживает следующие трекеры: FreePie UDP receiver (FreePie IMU для Android), Hatire Arduino или [Razor IMU](https://github.com/Razor-AHRS/razor-9dof-ahrs) ([Arduino](http://ali.pub/1lltzk) + [GY-85](http://ali.pub/1lltk0)), [Oculus DK1](http://ali.pub/1llqtf), Aruco (Paper + [WebCam](http://ali.pub/2k9jf6)) и другие.<br>
 <br>[![youtube-freetrack](https://user-images.githubusercontent.com/9499881/32277549-411d313c-bf2c-11e7-9b07-77a903783cf5.gif)](https://youtu.be/mDkdj_vn5Lk)
 
 ## Настройка 
@@ -10,7 +10,7 @@
 2. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу центрирования, выключить фильтр, изменить выходной интерфейс "freetrack 2.0 Enhanced" или на "UDP over network", в зависимости от выбранного драйвера). Если вы выбрали UDP, то в настройках выходного интерфейса нужно задать IP "127.0.0.1".<br><br>
 
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки с экрана монитора, можно использовать приложение "Moonlight" (только для Nvidia 600 серии и выше) или любое другое приложение. Можете воспользоваться [этой инструкцией](https://stackoverflow.com/a/46433454).<br><br>
-Если вы используете Arduino Razor IMU трекер, вы можете использовать стандарт [TrueOpenVR](https://github.com/TrueOpenVR), вместе с его SteamVR драйвером или приложение [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
+Если вы используете [Arduino Razor IMU трекер](https://github.com/Razor-AHRS/razor-9dof-ahrs), вы можете использовать стандарт [TrueOpenVR](https://github.com/TrueOpenVR), вместе с его SteamVR драйвером или приложение [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
 
 ## Известные проблемы
 1. Красный экран. Исправить это можно выбрав окно "Headset Window".
