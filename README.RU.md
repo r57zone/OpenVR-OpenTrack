@@ -18,7 +18,7 @@
 
 ## Загрузка
 >Версия для x86 и x64.<br>
-**[Загрузить](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
+**[Загрузить](https://github.com/r57zone/OpenVR-OpenTrack/releases)**
 
 ## Обратная связь
 `r57zone[собака]gmail.com`

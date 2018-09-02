@@ -18,7 +18,7 @@ If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9
 
 ## Download
 >Version for x86 и x64.<br>
-**[Download](https://github.com/r57zone/OpenVR-OpenTrack/releases)**<br>
+**[Download](https://github.com/r57zone/OpenVR-OpenTrack/releases)**
 
 ## Feedback
 `r57zone[at]gmail.com`

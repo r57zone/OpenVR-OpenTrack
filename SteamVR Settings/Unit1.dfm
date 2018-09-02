@@ -88,7 +88,7 @@ object Main: TMain
     Height = 13
     Caption = 'Zoom width, height:'
   end
-  object Label1: TLabel
+  object ghzLbl: TLabel
     Left = 565
     Top = 183
     Width = 17
@@ -102,7 +102,7 @@ object Main: TMain
     Height = 13
     Caption = 'Zoom out the distance between the eyes:'
   end
-  object Label3: TLabel
+  object PixelsLbl: TLabel
     Left = 565
     Top = 109
     Width = 26
@@ -116,7 +116,7 @@ object Main: TMain
     Height = 13
     Caption = 'Interpupillary distance (IPD):'
   end
-  object Label5: TLabel
+  object mmLbl: TLabel
     Left = 565
     Top = 146
     Width = 16
@@ -179,7 +179,7 @@ object Main: TMain
     Top = 14
     Width = 57
     Height = 21
-    TabOrder = 8
+    TabOrder = 10
     Text = '0.91'
   end
   object DistortionK2Edt: TEdit
@@ -187,7 +187,7 @@ object Main: TMain
     Top = 13
     Width = 57
     Height = 21
-    TabOrder = 9
+    TabOrder = 11
     Text = '0.93'
   end
   object ZoomWidthEdt: TEdit
@@ -195,7 +195,7 @@ object Main: TMain
     Top = 55
     Width = 57
     Height = 21
-    TabOrder = 10
+    TabOrder = 12
     Text = '0.8'
   end
   object ZoomHeightEdt: TEdit
@@ -203,7 +203,7 @@ object Main: TMain
     Top = 55
     Width = 57
     Height = 21
-    TabOrder = 11
+    TabOrder = 13
     Text = '0.8'
   end
   object AboutBtn: TButton
@@ -212,26 +212,26 @@ object Main: TMain
     Width = 28
     Height = 25
     Caption = '?'
-    TabOrder = 15
+    TabOrder = 9
     OnClick = AboutBtnClick
   end
   object CancelBtn: TButton
-    Left = 88
+    Left = 168
     Top = 192
     Width = 75
     Height = 25
     Caption = 'Cancel'
-    TabOrder = 7
+    TabOrder = 8
     OnClick = CancelBtnClick
   end
-  object ApplyBtn: TButton
+  object InstallBtn: TButton
     Left = 8
     Top = 192
     Width = 75
     Height = 25
-    Caption = 'Apply'
+    Caption = 'Install'
     TabOrder = 6
-    OnClick = ApplyBtnClick
+    OnClick = InstallBtnClick
   end
   object ChangeDisplayFrequencyCB: TCheckBox
     Left = 304
@@ -248,7 +248,7 @@ object Main: TMain
     Width = 49
     Height = 21
     Enabled = False
-    TabOrder = 14
+    TabOrder = 17
     Text = '0'
   end
   object IPDEdt: TEdit
@@ -256,7 +256,7 @@ object Main: TMain
     Top = 143
     Width = 49
     Height = 21
-    TabOrder = 13
+    TabOrder = 15
     Text = '0.065'
   end
   object DistanceEyesEdt: TEdit
@@ -264,8 +264,17 @@ object Main: TMain
     Top = 106
     Width = 49
     Height = 21
-    TabOrder = 12
+    TabOrder = 14
     Text = '0'
+  end
+  object UninstallBtn: TButton
+    Left = 88
+    Top = 192
+    Width = 75
+    Height = 25
+    Caption = 'Uninstall'
+    TabOrder = 7
+    OnClick = UninstallBtnClick
   end
   object XPManifest: TXPManifest
     Left = 160

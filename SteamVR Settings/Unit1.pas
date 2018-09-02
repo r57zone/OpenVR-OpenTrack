@@ -30,23 +30,25 @@ type
     ZoomHeightEdt: TEdit;
     AboutBtn: TButton;
     CancelBtn: TButton;
-    ApplyBtn: TButton;
+    InstallBtn: TButton;
     ChangeDisplayFrequencyCB: TCheckBox;
     DisplayFrequencyEdt: TEdit;
-    Label1: TLabel;
+    ghzLbl: TLabel;
     DistanceEyesLbl: TLabel;
     IPDEdt: TEdit;
     DistanceEyesEdt: TEdit;
-    Label3: TLabel;
     IPDLbl: TLabel;
-    Label5: TLabel;
+    mmLbl: TLabel;
+    PixelsLbl: TLabel;
+    UninstallBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure AboutBtnClick(Sender: TObject);
     procedure DisplayTBChange(Sender: TObject);
-    procedure ApplyBtnClick(Sender: TObject);
+    procedure InstallBtnClick(Sender: TObject);
     procedure CancelBtnClick(Sender: TObject);
     procedure MoreSettingsLblClick(Sender: TObject);
     procedure ChangeDisplayFrequencyCBClick(Sender: TObject);
+    procedure UninstallBtnClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -55,15 +57,25 @@ type
 
 var
   Main: TMain;
+  SteamPath: string;
 
 implementation
 
 {$R *.dfm}
 
 procedure TMain.FormCreate(Sender: TObject);
+var
+  Reg: TRegistry;
 begin
   Application.Title:=Caption;
-  Width:=300;
+  Width:=290;
+
+  Reg:=TRegistry.Create;
+  Reg.RootKey:=HKEY_CURRENT_USER;
+  if (Reg.OpenKey('\Software\Valve\Steam', false)) then
+    SteamPath:=StringReplace(Reg.ReadString('SteamPath'), '/', '\', [rfReplaceAll]);
+  Reg.CloseKey;
+  Reg.Free;
 
   SetWindowLong(RndWidthEdt.Handle, GWL_STYLE, GetWindowLong(RndWidthEdt.Handle, GWL_STYLE) or ES_NUMBER);
   SetWindowLong(RndHeightEdt.Handle, GWL_STYLE, GetWindowLong(RndHeightEdt.Handle, GWL_STYLE) or ES_NUMBER);
@@ -93,20 +105,12 @@ begin
   DisplayLbl.Caption:=IntToStr(DisplayTB.Position + 1);
 end;
 
-procedure TMain.ApplyBtnClick(Sender: TObject);
+procedure TMain.InstallBtnClick(Sender: TObject);
 var
-  Reg: TRegistry;
-  SteamPath: string;
   Config: TStringList;
   Error: boolean;
 begin
   Error:=false;
-  Reg:=TRegistry.Create;
-  Reg.RootKey:=HKEY_CURRENT_USER;
-  if (Reg.OpenKey('\Software\Valve\Steam', false)) then
-    SteamPath:=StringReplace(Reg.ReadString('SteamPath'), '/', '\', [rfReplaceAll]);
-  Reg.CloseKey;
-  Reg.Free;
 
   if DirectoryExists(SteamPath) then begin
 
@@ -169,7 +173,7 @@ begin
     end;
 
     if Error = false then
-      Application.MessageBox('Done', PChar(Caption), MB_ICONINFORMATION);
+      Application.MessageBox('Installed', PChar(Caption), MB_ICONINFORMATION);
 
   end else
     ShowMessage('Steam not found. Please install Steam and SteamVR');
@@ -185,10 +189,10 @@ end;
 
 procedure TMain.MoreSettingsLblClick(Sender: TObject);
 begin
-  if Width = 300 then
+  if Width = 290 then
     Width:=608
   else
-    Width:=300;
+    Width:=290;
 end;
 
 procedure TMain.ChangeDisplayFrequencyCBClick(Sender: TObject);
@@ -197,6 +201,16 @@ begin
     DisplayFrequencyEdt.Enabled:=true
   else
     DisplayFrequencyEdt.Enabled:=false;
+end;
+
+procedure TMain.UninstallBtnClick(Sender: TObject);
+begin
+  if DirectoryExists(SteamPath) then begin
+    if FileExists(SteamPath + '\config\steamvr.vrsettings') then
+      DeleteFile(SteamPath + '\config\steamvr.vrsettings');
+      Application.MessageBox('Uninstalled', PChar(Caption), MB_ICONINFORMATION);
+  end else
+    Application.MessageBox('Steam not found. Please install Steam and SteamVR', PChar(Caption), MB_ICONERROR);
 end;
 
 end.
