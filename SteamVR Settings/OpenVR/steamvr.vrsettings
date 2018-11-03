@@ -24,6 +24,7 @@
    },
    "steamvr" : {
       "activateMultipleDrivers" : true,
+	  "allowAsyncReprojection" : false,
       "directMode" : false,
       "enableHomeApp" : false,
       "forcedDriver" : "null",

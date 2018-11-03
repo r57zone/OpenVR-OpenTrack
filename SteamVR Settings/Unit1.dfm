@@ -239,6 +239,8 @@ object Main: TMain
     Width = 145
     Height = 17
     Caption = 'Change display frequency'
+    Checked = True
+    State = cbChecked
     TabOrder = 16
     OnClick = ChangeDisplayFrequencyCBClick
   end
@@ -247,9 +249,8 @@ object Main: TMain
     Top = 179
     Width = 49
     Height = 21
-    Enabled = False
     TabOrder = 17
-    Text = '0'
+    Text = '60'
   end
   object IPDEdt: TEdit
     Left = 512
