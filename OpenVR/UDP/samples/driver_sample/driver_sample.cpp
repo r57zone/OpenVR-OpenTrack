@@ -8,10 +8,11 @@
 #include <thread>
 #include <chrono>
 
+#if defined( _WINDOWS )
+//#include <windows.h>
 #include <winsock2.h>
 #pragma comment (lib, "WSock32.Lib")
-//#include <Windows.h>
-
+#endif
 
 using namespace vr;
 
@@ -54,7 +55,7 @@ inline void HmdMatrix_SetIdentity( HmdMatrix34_t *pMatrix )
 
 
 // keys for use with the settings API
-static const char * const k_pch_Sample_Section = "driver_null";
+static const char * const k_pch_Sample_Section = "opentrack";
 static const char * const k_pch_Sample_SerialNumber_String = "serialNumber";
 static const char * const k_pch_Sample_ModelNumber_String = "modelNumber";
 static const char * const k_pch_Sample_WindowX_Int32 = "windowX";
@@ -65,6 +66,7 @@ static const char * const k_pch_Sample_RenderWidth_Int32 = "renderWidth";
 static const char * const k_pch_Sample_RenderHeight_Int32 = "renderHeight";
 static const char * const k_pch_Sample_SecondsFromVsyncToPhotons_Float = "secondsFromVsyncToPhotons";
 static const char * const k_pch_Sample_DisplayFrequency_Float = "displayFrequency";
+
 static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
 static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
@@ -72,6 +74,7 @@ static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
 static const char * const k_pch_Sample_DistanceBetweenEyes_Int32 = "DistanceBetweenEyes";
 static const char * const k_pch_Sample_ScreenOffsetX_Int32 = "ScreenOffsetX";
 static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
+
 
 //OpenTrack vars
 double qW, qX, qY, qZ;
@@ -134,93 +137,6 @@ void WinSockReadFunc()
 	}
 }
 
-class CWatchdogDriver_Sample : public IVRWatchdogProvider
-{
-public:
-	CWatchdogDriver_Sample()
-	{
-		m_pWatchdogThread = nullptr;
-	}
-
-	virtual EVRInitError Init( vr::IVRDriverContext *pDriverContext ) ;
-	virtual void Cleanup() ;
-
-private:
-	std::thread *m_pWatchdogThread;
-};
-
-CWatchdogDriver_Sample g_watchdogDriverNull;
-
-
-bool g_bExiting = false;
-
-void WatchdogThreadFunction(  )
-{
-	while ( !g_bExiting )
-	{
-#if defined( _WINDOWS )
-		// on windows send the event when the Y key is pressed.
-		/*if ( (0x01 & GetAsyncKeyState( 'Y' )) != 0 )
-		{
-			// Y key was pressed. 
-			vr::VRWatchdogHost()->WatchdogWakeUp();
-		}*/
-		std::this_thread::sleep_for( std::chrono::microseconds( 500 ) );
-#else
-		// for the other platforms, just send one every five seconds
-		std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
-		vr::VRWatchdogHost()->WatchdogWakeUp();
-#endif
-	}
-}
-
-EVRInitError CWatchdogDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
-{
-	VR_INIT_WATCHDOG_DRIVER_CONTEXT( pDriverContext );
-	//InitDriverLog( vr::VRDriverLog() );
-
-	// Watchdog mode on Windows starts a thread that listens for the 'Y' key on the keyboard to 
-	// be pressed. A real driver should wait for a system button event or something else from the 
-	// the hardware that signals that the VR system should start up.
-	g_bExiting = false;
-	m_pWatchdogThread = new std::thread( WatchdogThreadFunction );
-	if ( !m_pWatchdogThread )
-	{
-		//DriverLog( "Unable to create watchdog thread\n");
-		return VRInitError_Driver_Failed;
-	}
-
-	return VRInitError_None;
-}
-
-
-void CWatchdogDriver_Sample::Cleanup()
-{
-	//Close UDP
-	if (SocketActivated) {
-		SocketActivated = false;
-		if (pSocketThread) {
-			pSocketThread->join();
-			delete pSocketThread;
-			pSocketThread = nullptr;
-		}
-		closesocket(socketS);
-		WSACleanup();
-	}
-	g_bExiting = true;
-	if ( m_pWatchdogThread )
-	{
-		m_pWatchdogThread->join();
-		delete m_pWatchdogThread;
-		m_pWatchdogThread = nullptr;
-	}
-	//CleanupDriverLog();
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
 class CSampleDeviceDriver : public vr::ITrackedDeviceServerDriver, public vr::IVRDisplayComponent
 {
 public:
@@ -256,55 +172,14 @@ public:
 		m_nScreenOffsetX = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ScreenOffsetX_Int32);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_Sample_Section, k_pch_Sample_DebugMode_Bool);
 
-		//DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
-		//DriverLog( "driver_null: Model Number: %s\n", m_sModelNumber.c_str() );
-		//DriverLog( "driver_null: Window: %d %d %d %d\n", m_nWindowX, m_nWindowY, m_nWindowWidth, m_nWindowHeight );
-		//DriverLog( "driver_null: Render Target: %d %d\n", m_nRenderWidth, m_nRenderHeight );
-		//DriverLog( "driver_null: Seconds from Vsync to Photons: %f\n", m_flSecondsFromVsyncToPhotons );
-		//DriverLog( "driver_null: Display Frequency: %f\n", m_flDisplayFrequency );
-		//DriverLog( "driver_null: IPD: %f\n", m_flIPD );
 
-		//Open UDP port for receive data from OpenTrack ("UDP over network", 127.0.0.1, 4242)
-		WSADATA wsaData;
-		int iResult;
-		iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-		if (iResult == 0) {
-			struct sockaddr_in local;
-			fromlen = sizeof(from);
-			local.sin_family = AF_INET;
-			local.sin_port = htons(4242);
-			local.sin_addr.s_addr = INADDR_ANY;
-
-			socketS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-			u_long nonblocking_enabled = true;
-			ioctlsocket(socketS, FIONBIO, &nonblocking_enabled);
-
-			if (socketS != INVALID_SOCKET) {
-
-				iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
-
-				if (iResult != SOCKET_ERROR) {
-					SocketActivated = true;
-					pSocketThread = new std::thread(WinSockReadFunc);
-				}
-				else {
-					WSACleanup();
-					SocketActivated = false;
-				}
-
-			}
-			else {
-				WSACleanup();
-				SocketActivated = false;
-			}
-
-		}
-		else
-		{
-			WSACleanup();
-			SocketActivated = false;
-		}
+		/*DriverLog( "driver_null: Serial Number: %s\n", m_sSerialNumber.c_str() );
+		DriverLog( "driver_null: Model Number: %s\n", m_sModelNumber.c_str() );
+		DriverLog( "driver_null: Window: %d %d %d %d\n", m_nWindowX, m_nWindowY, m_nWindowWidth, m_nWindowHeight );
+		DriverLog( "driver_null: Render Target: %d %d\n", m_nRenderWidth, m_nRenderHeight );
+		DriverLog( "driver_null: Seconds from Vsync to Photons: %f\n", m_flSecondsFromVsyncToPhotons );
+		DriverLog( "driver_null: Display Frequency: %f\n", m_flDisplayFrequency );
+		DriverLog( "driver_null: IPD: %f\n", m_flIPD );*/
 	}
 
 	virtual ~CSampleDeviceDriver()
@@ -331,8 +206,9 @@ public:
 		// avoid "not fullscreen" warnings from vrmonitor
 		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_IsOnDesktop_Bool, false );
 
-		//Debug mode activate Windowed Mode (borderless fullscreen) on "Headset Window" and you can move window to second screen with buttons (Shift + Win + Right or Left), but lock to 30 FPS 
+		//Debug mode activate Windowed Mode (borderless fullscreen), lock to 30 FPS 
 		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, m_bDebugMode);
+
 		// Icons can be configured in code or automatically configured by an external file "drivername\resources\driver.vrresources".
 		// Icon properties NOT configured in code (post Activate) are then auto-configured by the optional presence of a driver's "drivername\resources\driver.vrresources".
 		// In this manner a driver can configure their icons in a flexible data driven fashion by using an external file.
@@ -356,20 +232,20 @@ public:
 		// Thus "Prop_NamedIconPathDeviceAlertLow_String" in each model's block represent a specialization specific for that "model".
 		// Keys in "Model-v Defaults" are an example of mapping to the same states, and here all map to "Prop_NamedIconPathDeviceOff_String".
 		//
-		bool bSetupIconUsingExternalResourceFile = true;
+		/*bool bSetupIconUsingExternalResourceFile = true;
 		if ( !bSetupIconUsingExternalResourceFile )
 		{
 			// Setup properties directly in code.
 			// Path values are of the form {drivername}\icons\some_icon_filename.png
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{null}/icons/headset_sample_status_off.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{null}/icons/headset_sample_status_searching.gif" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{null}/icons/headset_sample_status_searching_alert.gif" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{null}/icons/headset_sample_status_ready.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{null}/icons/headset_sample_status_ready_alert.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceNotReady_String, "{null}/icons/headset_sample_status_error.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceStandby_String, "{null}/icons/headset_sample_status_standby.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceAlertLow_String, "{null}/icons/headset_sample_status_ready_low.png" );
-		}
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{sample}/icons/headset_sample_status_off.png" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{sample}/icons/headset_sample_status_searching.gif" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{sample}/icons/headset_sample_status_searching_alert.gif" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{sample}/icons/headset_sample_status_ready.png" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{sample}/icons/headset_sample_status_ready_alert.png" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceNotReady_String, "{sample}/icons/headset_sample_status_error.png" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceStandby_String, "{sample}/icons/headset_sample_status_standby.png" );
+			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceAlertLow_String, "{sample}/icons/headset_sample_status_ready_low.png" );
+		}*/
 
 		return VRInitError_None;
 	}
@@ -466,7 +342,7 @@ public:
 		double theta;
 
 		rr = sqrt((fU - 0.5f)*(fU - 0.5f) + (fV - 0.5f)*(fV - 0.5f));
-		r2 = rr * (1 + m_fDistortionK1*(rr*rr) + m_fDistortionK2*(rr*rr*rr*rr));
+		r2 = rr * (1 + m_fDistortionK1 * (rr*rr) + m_fDistortionK2 * (rr*rr*rr*rr));
 		theta = atan2(fU - 0.5f, fV - 0.5f);
 		hX = sin(theta)*r2*m_fZoomWidth;
 		hY = cos(theta)*r2*m_fZoomHeight;
@@ -477,7 +353,6 @@ public:
 		coordinates.rfGreen[1] = hY + 0.5f;
 		coordinates.rfRed[0] = hX + 0.5f;
 		coordinates.rfRed[1] = hY + 0.5f;
-
 
 		return coordinates;
 	}
@@ -498,9 +373,9 @@ public:
 			pose.deviceIsConnected = false;
 		}
 
-		pose.qWorldFromDriverRotation = HmdQuaternion_Init( 1, 0, 0, 0 );
-		pose.qDriverFromHeadRotation = HmdQuaternion_Init( 1, 0, 0, 0 );
-		
+		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
+		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
+
 		//Set head tracking rotation
 		pose.qRotation.w = qW;
 		pose.qRotation.x = qX;
@@ -545,6 +420,7 @@ private:
 	float m_flSecondsFromVsyncToPhotons;
 	float m_flDisplayFrequency;
 	float m_flIPD;
+
 	float m_fDistortionK1;
 	float m_fDistortionK2;
 	float m_fZoomWidth;
@@ -560,12 +436,6 @@ private:
 class CServerDriver_Sample: public IServerTrackedDeviceProvider
 {
 public:
-	CServerDriver_Sample()
-		: m_pNullHmdLatest( NULL )
-		, m_bEnableNullDriver( false )
-	{
-	}
-
 	virtual EVRInitError Init( vr::IVRDriverContext *pDriverContext ) ;
 	virtual void Cleanup() ;
 	virtual const char * const *GetInterfaceVersions() { return vr::k_InterfaceVersions; }
@@ -575,9 +445,7 @@ public:
 	virtual void LeaveStandby()  {}
 
 private:
-	CSampleDeviceDriver *m_pNullHmdLatest;
-	
-	bool m_bEnableNullDriver;
+	CSampleDeviceDriver *m_pNullHmdLatest = nullptr;
 };
 
 CServerDriver_Sample g_serverDriverNull;
@@ -588,14 +456,56 @@ EVRInitError CServerDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
 	VR_INIT_SERVER_DRIVER_CONTEXT( pDriverContext );
 	//InitDriverLog( vr::VRDriverLog() );
 
+	//Open UDP port for receive data from OpenTrack ("UDP over network", 127.0.0.1, 4242)
+	WSADATA wsaData;
+	int iResult;
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult == 0) {
+		struct sockaddr_in local;
+		fromlen = sizeof(from);
+		local.sin_family = AF_INET;
+		local.sin_port = htons(4242);
+		local.sin_addr.s_addr = INADDR_ANY;
+
+		socketS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		u_long nonblocking_enabled = true;
+		ioctlsocket(socketS, FIONBIO, &nonblocking_enabled);
+
+		if (socketS != INVALID_SOCKET) {
+
+			iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
+
+			if (iResult != SOCKET_ERROR) {
+				SocketActivated = true;
+				pSocketThread = new std::thread(WinSockReadFunc);
+			}
+			else {
+				WSACleanup();
+				SocketActivated = false;
+			}
+
+		}
+		else {
+			WSACleanup();
+			SocketActivated = false;
+		}
+
+	}
+	else
+	{
+		WSACleanup();
+		SocketActivated = false;
+	}
+
 	m_pNullHmdLatest = new CSampleDeviceDriver();
 	vr::VRServerDriverHost()->TrackedDeviceAdded( m_pNullHmdLatest->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pNullHmdLatest );
+
 	return VRInitError_None;
 }
 
 void CServerDriver_Sample::Cleanup() 
 {
-	//Close UDP
 	if (SocketActivated) {
 		SocketActivated = false;
 		if (pSocketThread) {
@@ -628,10 +538,6 @@ HMD_DLL_EXPORT void *HmdDriverFactory( const char *pInterfaceName, int *pReturnC
 	if( 0 == strcmp( IServerTrackedDeviceProvider_Version, pInterfaceName ) )
 	{
 		return &g_serverDriverNull;
-	}
-	if( 0 == strcmp( IVRWatchdogProvider_Version, pInterfaceName ) )
-	{
-		return &g_watchdogDriverNull;
 	}
 
 	if( pReturnCode )
