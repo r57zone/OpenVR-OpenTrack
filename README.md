@@ -13,6 +13,7 @@ If you are using an Android smartphone, you need to use FreePie IMU from the Ope
 If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9dof-ahrs), you can use the standard [TrueOpenVR](https://github.com/TrueOpenVR), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
 
 ## Configuration file options
+Name | Description
 ------------ | -------------
 DebugMode | debug mode, locked at 30 FPS. After checking, it is recommended to set it to false (disable).
 DistanceBetweenEyes | the distance between stereo images, the larger the closer.

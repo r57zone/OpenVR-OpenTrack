@@ -13,6 +13,7 @@
 Если вы используете [Arduino Razor IMU трекер](https://github.com/Razor-AHRS/razor-9dof-ahrs), вы можете использовать стандарт [TrueOpenVR](https://github.com/TrueOpenVR), вместе с его SteamVR драйвером или приложение [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
 
 ## Параметры файла конфигурации
+Название | Описание
 ------------ | -------------
 DebugMode | режим отладки, заблокирован на 30 FPS. Рекомендуется после проверки поставить false (отключить).
 DistanceBetweenEyes | расстояние между стерео изображениями, чем больше тем ближе.
