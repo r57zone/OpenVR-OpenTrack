@@ -21,7 +21,7 @@ DistortionK1, DistortionK2 | lens distortion factors.
 ScreenOffsetX | horizontal image shift.
 ZoomHeight, ZoomWidth | scaling factors of stereo images.
 displayFrequency | screen refresh rate.
-renderWidth, renderHeight | image rendering resolution.
+renderWidth, renderHeight | image rendering resolution for one eye.
 windowWidth, windowHeight | height and width of the displayed window.
 windowX, windowY | window offset is required for display on other monitors. For example, to display on the second display, which is displayed on the left, you need to specify the value 1920 (provided that the first display we have is 1920 by 1080).
 
