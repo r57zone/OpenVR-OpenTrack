@@ -9,9 +9,7 @@
 #include <chrono>
 
 #if defined( _WINDOWS )
-//#include <windows.h>
-#include <winsock2.h>
-#pragma comment (lib, "WSock32.Lib")
+#include <windows.h>
 #endif
 
 using namespace vr;
@@ -76,67 +74,114 @@ static const char * const k_pch_Sample_ScreenOffsetX_Int32 = "ScreenOffsetX";
 static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
 
 
-//OpenTrack vars
-double qW, qX, qY, qZ;
-double Yaw = 0, Pitch = 0, Roll = 0;
-double pX = 0, pY = 0, pZ = 0;
-struct TOpenTrack {
-	double X;
-	double Y;
-	double Z;
-	double Yaw;
-	double Pitch;
-	double Roll;
-};
-TOpenTrack OpenTrack;
-//WinSock
-SOCKET socketS;
-int bytes_read;
-struct sockaddr_in from;
-int fromlen;
-bool SocketActivated = false;
-bool bKeepReading = false;
+#define FREETRACK_HEAP "FT_SharedMem"
+#define FREETRACK_MUTEX "FT_Mutext"
 
-std::thread *pSocketThread = NULL;
+/* only 6 headpose floats and the data id are filled -sh */
+typedef struct FTData__ {
+	uint32_t DataID;
+	int32_t CamWidth;
+	int32_t CamHeight;
+	/* virtual pose */
+	float  Yaw;   /* positive yaw to the left */
+	float  Pitch; /* positive pitch up */
+	float  Roll;  /* positive roll to the left */
+	float  X;
+	float  Y;
+	float  Z;
+	/* raw pose with no smoothing, sensitivity, response curve etc. */
+	float  RawYaw;
+	float  RawPitch;
+	float  RawRoll;
+	float  RawX;
+	float  RawY;
+	float  RawZ;
+	/* raw points, sorted by Y, origin top left corner */
+	float  X1;
+	float  Y1;
+	float  X2;
+	float  Y2;
+	float  X3;
+	float  Y3;
+	float  X4;
+	float  Y4;
+} volatile FTData;
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
+typedef struct FTHeap__ {
+	FTData data;
+	int32_t GameID;
+	union
+	{
+		unsigned char table[8];
+		int32_t table_ints[2];
+	};
+	int32_t GameID2;
+} volatile FTHeap;
 
-double DegToRad(double f) {
-	return f * (3.14159265358979323846 / 180);
+static HANDLE hFTMemMap = 0;
+static FTHeap *ipc_heap = 0;
+static HANDLE ipc_mutex = 0;
+
+FTData *FreeTrack;
+bool HMDConnected = false;
+std::thread *pFTthread = NULL;
+
+inline vr::HmdQuaternion_t EulerAngleToQuaternion(double Yaw, double Pitch, double Roll)
+{
+	vr::HmdQuaternion_t q;
+	// Abbreviations for the various angular functions
+	double cy = cos(Yaw * 0.5);
+	double sy = sin(Yaw * 0.5);
+	double cp = cos(Pitch * 0.5);
+	double sp = sin(Pitch * 0.5);
+	double cr = cos(Roll * 0.5);
+	double sr = sin(Roll * 0.5);
+
+	q.w = cr * cp * cy + sr * sp * sy;
+	q.x = sr * cp * cy - cr * sp * sy;
+	q.y = cr * sp * cy + sr * cp * sy;
+	q.z = cr * cp * sy - sr * sp * cy;
+
+	return q;
 }
 
-void WinSockReadFunc()
+//FreeTrack implementation from OpenTrack (https://github.com/opentrack/opentrack/tree/unstable/freetrackclient)
+static BOOL impl_create_mapping(void)
 {
-	while (SocketActivated) {
-		//Read UDP socket with OpenTrack data
-		bKeepReading = true;
-		while (bKeepReading) {
-			memset(&OpenTrack, 0, sizeof(OpenTrack));
-			bytes_read = recvfrom(socketS, (char*)(&OpenTrack), sizeof(OpenTrack), 0, (sockaddr*)&from, &fromlen);
+	if (ipc_heap != NULL)
+		return TRUE;
 
-			if (bytes_read > 0) {
-				Yaw = DegToRad(OpenTrack.Yaw);
-				Pitch = DegToRad(OpenTrack.Pitch);
-				Roll = DegToRad(OpenTrack.Roll);
-				pX = OpenTrack.X;
-				pY = OpenTrack.Y;
-				pZ = OpenTrack.Z;
+	hFTMemMap = CreateFileMappingA(INVALID_HANDLE_VALUE,
+		NULL,
+		PAGE_READWRITE,
+		0,
+		sizeof(FTHeap),
+		(LPCSTR)FREETRACK_HEAP);
 
-				//Convert yaw, pitch, roll to quaternion
-				qW = cos(Yaw * 0.5) * cos(Roll * 0.5) * cos(Pitch * 0.5) + sin(Yaw * 0.5) * sin(Roll * 0.5) * sin(Pitch * 0.5);
-				qX = cos(Yaw * 0.5) * sin(Roll * 0.5) * cos(Pitch * 0.5) - sin(Yaw * 0.5) * cos(Roll * 0.5) * sin(Pitch * 0.5);
-				qY = cos(Yaw * 0.5) * cos(Roll * 0.5) * sin(Pitch * 0.5) + sin(Yaw * 0.5) * sin(Roll * 0.5) * cos(Pitch * 0.5);
-				qZ = sin(Yaw * 0.5) * cos(Roll * 0.5) * cos(Pitch * 0.5) - cos(Yaw * 0.5) * sin(Roll * 0.5) * sin(Pitch * 0.5);
-			}
-			else {
-				bKeepReading = false;
-			}
+	if (hFTMemMap == NULL)
+		return (ipc_heap = NULL), FALSE;
+
+	ipc_heap = (FTHeap*)MapViewOfFile(hFTMemMap, FILE_MAP_WRITE, 0, 0, sizeof(FTHeap));
+	ipc_mutex = CreateMutexA(NULL, FALSE, FREETRACK_MUTEX);
+
+	return TRUE;
+}
+
+void FTRead()
+{
+	while (HMDConnected) {
+		if (ipc_mutex && WaitForSingleObject(ipc_mutex, 16) == WAIT_OBJECT_0) {
+			memcpy(&FreeTrack, &ipc_heap, sizeof(FreeTrack));
+			if (ipc_heap->data.DataID > (1 << 29))
+				ipc_heap->data.DataID = 0;
+			ReleaseMutex(ipc_mutex);
 		}
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 class CSampleDeviceDriver : public vr::ITrackedDeviceServerDriver, public vr::IVRDisplayComponent
 {
 public:
@@ -360,14 +405,12 @@ public:
 	virtual DriverPose_t GetPose() 
 	{
 		DriverPose_t pose = { 0 };
-
-		if (SocketActivated) {
+		if (HMDConnected) {
 			pose.poseIsValid = true;
 			pose.result = TrackingResult_Running_OK;
 			pose.deviceIsConnected = true;
 		}
-		else
-		{
+		else {
 			pose.poseIsValid = false;
 			pose.result = TrackingResult_Uninitialized;
 			pose.deviceIsConnected = false;
@@ -376,16 +419,15 @@ public:
 		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
 		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
 
-		//Set head tracking rotation
-		pose.qRotation.w = qW;
-		pose.qRotation.x = qX;
-		pose.qRotation.y = qY;
-		pose.qRotation.z = qZ;
+		if (HMDConnected) {
+			//Set head tracking rotation
+			pose.qRotation = EulerAngleToQuaternion(FreeTrack->Roll, -FreeTrack->Yaw, FreeTrack->Pitch);
 
-		//Set position tracking
-		pose.vecPosition[0] = pX * 0.01;
-		pose.vecPosition[1] = pY * 0.01;
-		pose.vecPosition[2] = pZ * 0.01;
+			//Set position tracking
+			pose.vecPosition[0] = FreeTrack->X * 0.001; //millimeters to meters
+			pose.vecPosition[1] = FreeTrack->Z * 0.001; //millimeters to meters 
+			pose.vecPosition[2] = FreeTrack->Y * 0.001; //millimeters to meters 
+		}
 
 		return pose;
 	}
@@ -456,46 +498,12 @@ EVRInitError CServerDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
 	VR_INIT_SERVER_DRIVER_CONTEXT( pDriverContext );
 	//InitDriverLog( vr::VRDriverLog() );
 
-	//Open UDP port for receive data from OpenTrack ("UDP over network", 127.0.0.1, 4242)
-	WSADATA wsaData;
-	int iResult;
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult == 0) {
-		struct sockaddr_in local;
-		fromlen = sizeof(from);
-		local.sin_family = AF_INET;
-		local.sin_port = htons(4242);
-		local.sin_addr.s_addr = INADDR_ANY;
-
-		socketS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-		u_long nonblocking_enabled = true;
-		ioctlsocket(socketS, FIONBIO, &nonblocking_enabled);
-
-		if (socketS != INVALID_SOCKET) {
-
-			iResult = bind(socketS, (sockaddr*)&local, sizeof(local));
-
-			if (iResult != SOCKET_ERROR) {
-				SocketActivated = true;
-				pSocketThread = new std::thread(WinSockReadFunc);
-			}
-			else {
-				WSACleanup();
-				SocketActivated = false;
-			}
-
-		}
-		else {
-			WSACleanup();
-			SocketActivated = false;
-		}
-
+	if (impl_create_mapping() == false) {
+		HMDConnected = false;
 	}
-	else
-	{
-		WSACleanup();
-		SocketActivated = false;
+	else {
+		HMDConnected = true;
+		pFTthread = new std::thread(FTRead);
 	}
 
 	m_pNullHmdLatest = new CSampleDeviceDriver();
@@ -506,15 +514,13 @@ EVRInitError CServerDriver_Sample::Init( vr::IVRDriverContext *pDriverContext )
 
 void CServerDriver_Sample::Cleanup() 
 {
-	if (SocketActivated) {
-		SocketActivated = false;
-		if (pSocketThread) {
-			pSocketThread->join();
-			delete pSocketThread;
-			pSocketThread = nullptr;
+	if (HMDConnected) {
+		HMDConnected = false;
+		if (pFTthread) {
+			pFTthread->join();
+			delete pFTthread;
+			pFTthread = nullptr;
 		}
-		closesocket(socketS);
-		WSACleanup();
 	}
 	//CleanupDriverLog();
 	delete m_pNullHmdLatest;

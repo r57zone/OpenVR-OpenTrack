@@ -126,6 +126,25 @@ FTData *FreeTrack;
 bool HMDConnected = false;
 std::thread *pFTthread = NULL;
 
+inline vr::HmdQuaternion_t EulerAngleToQuaternion(double Yaw, double Pitch, double Roll)
+{
+	vr::HmdQuaternion_t q;
+	// Abbreviations for the various angular functions
+	double cy = cos(Yaw * 0.5);
+	double sy = sin(Yaw * 0.5);
+	double cp = cos(Pitch * 0.5);
+	double sp = sin(Pitch * 0.5);
+	double cr = cos(Roll * 0.5);
+	double sr = sin(Roll * 0.5);
+
+	q.w = cr * cp * cy + sr * sp * sy;
+	q.x = sr * cp * cy - cr * sp * sy;
+	q.y = cr * sp * cy + sr * cp * sy;
+	q.z = cr * cp * sy - sr * sp * cy;
+
+	return q;
+}
+
 //FreeTrack implementation from OpenTrack (https://github.com/opentrack/opentrack/tree/unstable/freetrackclient)
 static BOOL impl_create_mapping(void)
 {
@@ -402,15 +421,12 @@ public:
 
 		if (HMDConnected) {
 			//Set head tracking rotation
-			pose.qRotation.w = cos(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) + sin(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
-			pose.qRotation.x = cos(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) - sin(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
-			pose.qRotation.y = cos(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5) + sin(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5);
-			pose.qRotation.z = sin(FreeTrack->Yaw * 0.5) * cos(FreeTrack->Roll * 0.5) * cos(FreeTrack->Pitch * 0.5) - cos(FreeTrack->Yaw * 0.5) * sin(FreeTrack->Roll * 0.5) * sin(FreeTrack->Pitch * 0.5);
+			pose.qRotation = EulerAngleToQuaternion(FreeTrack->Roll, -FreeTrack->Yaw, FreeTrack->Pitch);
 
 			//Set position tracking
 			pose.vecPosition[0] = FreeTrack->X * 0.001; //millimeters to meters
-			pose.vecPosition[1] = FreeTrack->Y * 0.001; //millimeters to meters 
-			pose.vecPosition[2] = FreeTrack->Z * 0.001; //millimeters to meters 
+			pose.vecPosition[1] = FreeTrack->Z * 0.001; //millimeters to meters 
+			pose.vecPosition[2] = FreeTrack->Y * 0.001; //millimeters to meters 
 		}
 
 		return pose;
