@@ -71,6 +71,7 @@ static const char * const k_pch_Sample_DistortionK1_Float = "DistortionK1";
 static const char * const k_pch_Sample_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_Sample_ZoomWidth_Float = "ZoomWidth";
 static const char * const k_pch_Sample_ZoomHeight_Float = "ZoomHeight";
+static const char * const k_pch_Sample_FOV_Float = "FOV";
 static const char * const k_pch_Sample_DistanceBetweenEyes_Int32 = "DistanceBetweenEyes";
 static const char * const k_pch_Sample_ScreenOffsetX_Int32 = "ScreenOffsetX";
 static const char * const k_pch_Sample_DebugMode_Bool = "DebugMode";
@@ -180,6 +181,7 @@ public:
 		m_fDistortionK2 = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistortionK2_Float);
 		m_fZoomWidth = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomWidth_Float);
 		m_fZoomHeight = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ZoomHeight_Float);
+		m_fFOV = (vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_FOV_Float) * 3.14159265358979323846 / 180); //radians
 		m_nDistanceBetweenEyes = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_DistanceBetweenEyes_Int32);
 		m_nScreenOffsetX = vr::VRSettings()->GetFloat(k_pch_Sample_Section, k_pch_Sample_ScreenOffsetX_Int32);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_Sample_Section, k_pch_Sample_DebugMode_Bool);
@@ -336,10 +338,10 @@ public:
 
 	virtual void GetProjectionRaw( EVREye eEye, float *pfLeft, float *pfRight, float *pfTop, float *pfBottom ) 
 	{
-		*pfLeft = -1.0;
-		*pfRight = 1.0;
-		*pfTop = -1.0;
-		*pfBottom = 1.0;	
+		*pfLeft = -m_fFOV;
+		*pfRight = m_fFOV;
+		*pfTop = -m_fFOV;
+		*pfBottom = m_fFOV;
 	}
 
 	virtual DistortionCoordinates_t ComputeDistortion( EVREye eEye, float fU, float fV ) 
@@ -434,6 +436,7 @@ private:
 	float m_fDistortionK2;
 	float m_fZoomWidth;
 	float m_fZoomHeight;
+	float m_fFOV;
 	int32_t m_nDistanceBetweenEyes;
 	int32_t m_nScreenOffsetX;
 	bool m_bDebugMode;

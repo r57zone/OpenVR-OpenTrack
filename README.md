@@ -18,15 +18,16 @@ If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9
 ## Configuration file options
 Name | Description
 ------------ | -------------
-DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to set it to false (disable).
 DistanceBetweenEyes | The distance between stereo images, the larger the closer.
 DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.
 ZoomHeight, ZoomWidth | Scaling factors of stereo images.
+FOV | Degree of field of view. You can zoom in, depending on the VR headset lenses.
 displayFrequency | Screen refresh rate.
 renderWidth, renderHeight | Image rendering resolution for one eye.
 windowWidth, windowHeight | Height and width of the displayed window.
 windowX, windowY | Window offset is required for display on other monitors. For example, to display on the second display, which is displayed on the right, you need to specify the value 1920 (provided that the first display has a resolution of 1920 by 1080). The exact data can be viewed using the [MultiMonitorTool utility](https://www.nirsoft.net/utils/multi_monitor_tool.html), and also with it you can turn off and turn on the second monitor via a bat file.
+DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to set it to false (disable).
 
 ## Known Issues
 1. Red screen. You can fix this by selecting the "Headset Window" window.
