@@ -12,7 +12,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 4. SteamVR starts and in the SteamVR status window click -> Room settings -> Small room -> Calibration -> 170 cm. The SteamVR tutorial can be closed and SteamVR Home is disabled in the SteamVR settings.
 5. Put on HMD and controllers, then centering them if necessary.
 
-If you are using an Android smartphone, you need to use FreePie IMU from the OpenTrack archive to tracking and you can use the "Moonlight" for smartphone and [Sunshine](https://github.com/loki-47-6F-64/sunshine/releases) or [Open-Stream](https://open-stream.net/) для ПК to stream picture from the monitor screen. Also you can use this [guide](https://stackoverflow.com/a/46433454).<br><br>
+If you are using an Android smartphone, you need to use FreePie IMU from the OpenTrack archive to tracking and you can use the "Moonlight" for smartphone and [Sunshine](https://github.com/loki-47-6F-64/sunshine/releases) or [Open-Stream](https://open-stream.net/) for PC to stream picture from the monitor screen. Also you can use this [guide](https://stackoverflow.com/a/46433454).<br><br>
 If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9dof-ahrs), you can use the standard [TrueOpenVR](https://github.com/TrueOpenVR), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
 
 ## Configuration file options
