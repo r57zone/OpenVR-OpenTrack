@@ -6,14 +6,14 @@
 <br>[![youtube-freetrack](https://user-images.githubusercontent.com/9499881/32277549-411d313c-bf2c-11e7-9b07-77a903783cf5.gif)](https://youtu.be/mDkdj_vn5Lk)
 
 ## Настройка 
-1. Распаковать SteamVR FreeTrack или UDP драйвер в папку "...\Steam\steamapps\common\SteamVR\drivers" (оба поддерживаются в OpenTrack, рекомендую использовать FreeTrack). При необходимости настроить параметры в файле конфигурации "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings". 
-2. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу центрирования, выключить фильтр, изменить выходной интерфейс "freetrack 2.0 Enhanced" или на "UDP over network", в зависимости от выбранного драйвера). Если вы выбрали UDP, то в настройках выходного интерфейса нужно задать IP "127.0.0.1".
-3. Установите [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
+1. Установите [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
+2. Распаковать SteamVR FreeTrack или UDP драйвер в папку "...\Steam\steamapps\common\SteamVR\drivers" (оба поддерживаются в OpenTrack, рекомендую использовать FreeTrack). При необходимости настроить параметры в файле конфигурации "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings". 
+3. Загрузить, установить и настроить [OpenTrack](https://github.com/opentrack/opentrack) (добавить горячую клавишу центрирования, выключить фильтр, изменить выходной интерфейс "freetrack 2.0 Enhanced" или на "UDP over network", в зависимости от выбранного драйвера). Если вы выбрали UDP, то в настройках выходного интерфейса нужно задать IP "127.0.0.1".
 4. Запускаем SteamVR и окне статуса SteamVR жмём -> Настройки комнаты -> Маленькая комната -> Калибровка -> 170 см. SteamVR демонстрация может быть закрыта, а запуск SteamVR Home может быть отключен в настройках SteamVR.
 5. Наденьте шлем и контроллеры, при необходимости отцентрируйте их.
 
 Если вы используете Android смартфон, то для трекинга необходимо использовать FreePie IMU, из архива OpenTrack, а для стриминга картинки с экрана монитора, можно использовать приложение "Moonlight" для смартфона и [Sunshine](https://github.com/loki-47-6F-64/sunshine/releases) или [Open-Stream](https://open-stream.net/) для ПК. Также можно воспользоваться [этой инструкцией](https://stackoverflow.com/a/46433454).<br><br>
-Если вы используете [Arduino Razor IMU трекер](https://github.com/Razor-AHRS/razor-9dof-ahrs), вы можете использовать стандарт [TrueOpenVR](https://github.com/TrueOpenVR), вместе с его SteamVR драйвером или приложение [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
+Если вы используете [Arduino Razor IMU трекер](https://github.com/Razor-AHRS/razor-9dof-ahrs), вы можете использовать [этот драйвер](https://github.com/r57zone/OpenVR-ArduinoHMD), вместе с его SteamVR драйвером или приложение [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases).
 
 ## Параметры файла конфигурации
 Название | Описание

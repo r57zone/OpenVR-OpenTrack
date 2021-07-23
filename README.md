@@ -6,14 +6,14 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 <br>[![youtube-freetrack](https://user-images.githubusercontent.com/9499881/32277549-411d313c-bf2c-11e7-9b07-77a903783cf5.gif)](https://youtu.be/mDkdj_vn5Lk)
 
 ## Setup
-1. Unpack SteamVR FreeTrack or UDP driver to folder "...\Steam\steamapps\common\SteamVR\drivers" (both are supported in OpenTrack, I recommend using FreeTrack). If necessary, configure the settings in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings".
-2. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hot centering key, disable filter, change output interface "freetrack 2.0 Enhanced" or "UDP over network", depending on the selected driver). If you selected UDP, then in the output interface settings you need to set IP "127.0.0.1".
-3. Install [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
+1. Install [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
+2. Unpack SteamVR FreeTrack or UDP driver to folder "...\Steam\steamapps\common\SteamVR\drivers" (both are supported in OpenTrack, I recommend using FreeTrack). If necessary, configure the settings in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings".
+3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hot centering key, disable filter, change output interface "freetrack 2.0 Enhanced" or "UDP over network", depending on the selected driver). If you selected UDP, then in the output interface settings you need to set IP "127.0.0.1".
 4. SteamVR starts and in the SteamVR status window click -> Room settings -> Small room -> Calibration -> 170 cm. The SteamVR tutorial can be closed and SteamVR Home is disabled in the SteamVR settings.
 5. Put on HMD and controllers, then centering them if necessary.
 
 If you are using an Android smartphone, you need to use FreePie IMU from the OpenTrack archive to tracking and you can use the "Moonlight" for smartphone and [Sunshine](https://github.com/loki-47-6F-64/sunshine/releases) or [Open-Stream](https://open-stream.net/) for PC to stream picture from the monitor screen. Also you can use this [guide](https://stackoverflow.com/a/46433454).<br><br>
-If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9dof-ahrs), you can use the standard [TrueOpenVR](https://github.com/TrueOpenVR), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
+If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9dof-ahrs), you can use [this driver](https://github.com/r57zone/OpenVR-ArduinoHMD), with its SteamVR driver or the [Razor IMU SteamVR](https://github.com/r57zone/VR-tracking-apps/releases) application.
 
 ## Configuration file options
 Name | Description
