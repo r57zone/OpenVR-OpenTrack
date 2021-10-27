@@ -95,7 +95,6 @@ int bytes_read;
 struct sockaddr_in from;
 int fromlen;
 bool SocketActivated = false;
-bool bKeepReading = false;
 
 std::thread *pSocketThread = NULL;
 
@@ -130,23 +129,17 @@ void WinSockReadFunc()
 {
 	while (SocketActivated) {
 		//Read UDP socket with OpenTrack data
-		bKeepReading = true;
-		while (bKeepReading) {
-			memset(&OpenTrack, 0, sizeof(OpenTrack));
-			bytes_read = recvfrom(socketS, (char*)(&OpenTrack), sizeof(OpenTrack), 0, (sockaddr*)&from, &fromlen);
+		memset(&OpenTrack, 0, sizeof(OpenTrack));
+		bytes_read = recvfrom(socketS, (char*)(&OpenTrack), sizeof(OpenTrack), 0, (sockaddr*)&from, &fromlen);
 
-			if (bytes_read > 0) {
-				Yaw = DegToRad(OpenTrack.Yaw);
-				Pitch = DegToRad(OpenTrack.Pitch);
-				Roll = DegToRad(OpenTrack.Roll);
-				pX = OpenTrack.X;
-				pY = OpenTrack.Y;
-				pZ = OpenTrack.Z;
-			}
-			else {
-				bKeepReading = false;
-			}
-		}
+		if (bytes_read > 0) {
+			Yaw = DegToRad(OpenTrack.Yaw);
+			Pitch = DegToRad(OpenTrack.Pitch);
+			Roll = DegToRad(OpenTrack.Roll);
+			pX = OpenTrack.X;
+			pY = OpenTrack.Y;
+			pZ = OpenTrack.Z;
+		} else Sleep(1);
 	}
 }
 
