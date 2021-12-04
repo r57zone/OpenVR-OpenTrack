@@ -343,8 +343,10 @@ public:
 
 	virtual bool IsDisplayRealDisplay() 
 	{
-		return true; //Support working on extended display
-		//return false;
+		if (m_nWindowX == 0 && m_nWindowY == 0)
+			return false;
+		else
+			return true; //Support working on extended display
 	}
 
 	virtual void GetRecommendedRenderTargetSize( uint32_t *pnWidth, uint32_t *pnHeight ) 

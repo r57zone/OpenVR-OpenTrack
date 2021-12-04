@@ -31,7 +31,7 @@ DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to s
 
 ## Known Issues
 1. Red screen. You can fix this by selecting the "Headset Window" window.
-2. The keyboard, mouse and gamepad do not work when using the driver on one monitor (The game window should be in focus). On systems with multiple monitors, you can move the application to second monitor and select it, then everything will work.
+2. The keyboard, mouse and gamepad don't work when using the driver on one monitor (The game window should be in focus). On systems with multiple monitors, you can move the application to second monitor and select it, then everything will work.
 
 ## Download
 >Version for x86 и x64.<br>
