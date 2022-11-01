@@ -18,6 +18,8 @@ If you use the [Arduino Razor IMU tracker](https://github.com/Razor-AHRS/razor-9
 ## Configuration file options
 Name | Description
 ------------ | -------------
+CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired name code](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
+CrouchOffset | The height of the crouch at the press of a button.
 DistanceBetweenEyes | The distance between stereo images, the larger the closer.
 DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.
