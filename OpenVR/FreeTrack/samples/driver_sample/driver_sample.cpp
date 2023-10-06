@@ -242,8 +242,8 @@ int KeyNameToKeyCode(std::string KeyName) {
 	else if (KeyName == "I") return 'I';
 	else if (KeyName == "O") return 'O';
 	else if (KeyName == "P") return 'P';
-	else if (KeyName == "[") return '[';
-	else if (KeyName == "]") return ']';
+	else if (KeyName == "[") return 219;
+	else if (KeyName == "]") return 221;
 	else if (KeyName == "A") return 'A';
 	else if (KeyName == "S") return 'S';
 	else if (KeyName == "D") return 'D';
@@ -253,8 +253,8 @@ int KeyNameToKeyCode(std::string KeyName) {
 	else if (KeyName == "J") return 'J';
 	else if (KeyName == "K") return 'K';
 	else if (KeyName == "L") return 'L';
-	else if (KeyName == ";") return 186;
-	else if (KeyName == "'") return 222;
+	else if (KeyName == ":") return 186;
+	else if (KeyName == "APOSTROPHE") return 222;
 	else if (KeyName == "\\") return 220;
 	else if (KeyName == "Z") return 'Z';
 	else if (KeyName == "X") return 'X';
@@ -369,6 +369,24 @@ public:
 
 		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, Prop_ModelNumber_String, m_sModelNumber.c_str() );
 		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, Prop_RenderModelName_String, m_sModelNumber.c_str() );
+		
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_SerialNumber_String, m_sSerialNumber.c_str());
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_WillDriftInYaw_Bool, false);
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_ManufacturerName_String, "OpenVR-OpenTrack");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_TrackingFirmwareVersion_String, "1.0");
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, Prop_HardwareRevision_String, "1.0");
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DeviceIsWireless_Bool, false);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DeviceIsCharging_Bool, false);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_CanUnifyCoordinateSystemWithHmd_Bool, true);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_ContainsProximitySensor_Bool, false);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DeviceCanPowerOff_Bool, false);
+		vr::VRProperties()->SetInt32Property(m_ulPropertyContainer, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_HMD);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_HasCamera_Bool, false);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_Firmware_ForceUpdateRequired_Bool, false);
+		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, vr::Prop_RegisteredDeviceType_String, "HMD");
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_NeverTracked_Bool, false);
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_Identifiable_Bool, false);
+
 		vr::VRProperties()->SetFloatProperty( m_ulPropertyContainer, Prop_UserIpdMeters_Float, m_flIPD );
 		vr::VRProperties()->SetFloatProperty( m_ulPropertyContainer, Prop_UserHeadToEyeDepthMeters_Float, 0.f );
 		vr::VRProperties()->SetFloatProperty( m_ulPropertyContainer, Prop_DisplayFrequency_Float, m_flDisplayFrequency );
@@ -549,6 +567,9 @@ public:
 
 		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
 		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
+		pose.shouldApplyHeadModel = true;
+		pose.poseTimeOffset = 0;
+		pose.willDriftInYaw = false;
 
 		if (HMDConnected) {
 			//Set head tracking rotation
