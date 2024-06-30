@@ -9,7 +9,7 @@ OpenVR / SteamVR driver allowing head tracking with any [OpenTrack](https://gith
 
 ## Setup
 1. Install [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
-2. Unpack SteamVR FreeTrack or UDP driver to folder "...\Steam\steamapps\common\SteamVR\drivers" (both are supported in OpenTrack, I recommend using FreeTrack). If necessary, configure the settings in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings".
+2. Unpack [SteamVR FreeTrack or UDP driver](https://github.com/r57zone/OpenVR-OpenTrack/releases) to folder "...\Steam\steamapps\common\SteamVR\drivers" (both are supported in OpenTrack, I recommend using FreeTrack). If necessary, configure the settings in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\opentrack\resources\settings\default.vrsettings".
 3. Download, install and configure [OpenTrack](https://github.com/opentrack/opentrack) (add hot centering key, disable filter, change output interface "freetrack 2.0 Enhanced" or "UDP over network", depending on the selected driver). If you selected UDP, then in the output interface settings you need to set IP "127.0.0.1".
 4. SteamVR starts and in the SteamVR status window click -> Room settings -> Small room -> Calibration -> 170 cm. The SteamVR tutorial can be closed and SteamVR Home is disabled in the SteamVR settings.
 5. Put on HMD and controllers, then centering them if necessary.
@@ -27,6 +27,7 @@ DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.
 ZoomHeight, ZoomWidth | Scaling factors of stereo images.
 FOV | Degree of field of view. You can zoom in, depending on the VR headset lenses.
+ipd | Interpupillary distance.
 displayFrequency | Screen refresh rate.
 renderWidth, renderHeight | Image rendering resolution for one eye.
 windowWidth, windowHeight | Height and width of the displayed window.
